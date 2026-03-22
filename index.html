@@ -124,7 +124,7 @@
   var KEY_URL      = 'ch241u';
   var KEY_TEXT     = 'ch241txt';
   var KEY_IMGS     = 'ch241imgs';
-  var MAX_IMGS     = 20;
+  var MAX_IMGS     = 8;
   var IMG_SCALE    = 0.6;
   var IMG_QUALITY  = 0.6;
 
@@ -378,7 +378,7 @@
       method: 'POST',
       headers: {
         'content-type': 'application/json',
-        'x+api-key': apiKey,
+        'x-api-key': apiKey,
         'anthropic-version': '2023-06-01'
       },
       body: body
