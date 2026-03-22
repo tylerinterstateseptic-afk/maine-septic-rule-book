@@ -55,75 +55,98 @@ input:focus{border-color:#4f46e5}
 <div id="inp"><textarea id="txt" rows="1" placeholder="Ask about Ch. 241..."></textarea><button id="snd">^</button></div>
 </div>
 <script>
-var KA="ch241k",KU="ch241u",KB="ch241b64";
-var apiKey="",pdfB64="",hist=[],busy=false;
+var KA="ch241k",KU="ch241u",K1="ch241p1",K2="ch241p2";
+var apiKey="",pdf1="",pdf2="",hist=[],busy=false;
 function ge(id){return document.getElementById(id);}
 var setup=ge("setup"),chat=ge("chat"),keyIn=ge("key"),urlIn=ge("url");
 var btn=ge("btn"),err=ge("err"),sts=ge("status"),msgs=ge("msgs"),txt=ge("txt"),snd=ge("snd"),rst=ge("rst");
 function init(){
-  var k=localStorage.getItem(KA),u=localStorage.getItem(KU),b=localStorage.getItem(KB);
+  var k=localStorage.getItem(KA),u=localStorage.getItem(KU),p1=localStorage.getItem(K1),p2=localStorage.getItem(K2);
   if(k)keyIn.value=k;
   if(u)urlIn.value=u;
-  if(k&&b){apiKey=k;pdfB64=b;showChat();}
+  if(k&&p1){apiKey=k;pdf1=p1;pdf2=p2||"";showChat();}
 }
 btn.addEventListener("click",function(){
   var k=keyIn.value.trim(),u=urlIn.value.trim();
   hideMsg();
   if(k.indexOf("sk-")!==0){showErr("API key must start with sk-");return;}
   if(u.indexOf("http")!==0){showErr("Enter a valid URL");return;}
-  btn.disabled=true;
-  showOk("Downloading PDF...");
-  fetch(u).then(function(r){
-    if(!r.ok)throw new Error("Fetch failed: "+r.status);
-    return r.arrayBuffer();
-  }).then(function(buf){
-    showOk("Processing PDF...");
-    var bytes=new Uint8Array(buf);
-    var binary="";
-    for(var i=0;i<bytes.byteLength;i++){binary+=String.fromCharCode(bytes[i]);}
-    var b64=btoa(binary);
-    try{
-      localStorage.setItem(KA,k);
-      localStorage.setItem(KU,u);
-      localStorage.setItem(KB,b64);
-    }catch(e){
-      showErr("Storage full - try clearing browser data");btn.disabled=false;return;
-    }
-    apiKey=k;pdfB64=b64;
-    showOk("Loaded! Opening chat...");
-    setTimeout(showChat,800);
-  }).catch(function(e){showErr("Error: "+e.message);btn.disabled=false;});
+  btn.disabled=true;showOk("Downloading PDF...");
+  var script=document.createElement("script");
+  script.src="https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js";
+  script.onload=function(){
+    fetch(u).then(function(r){
+      if(!r.ok)throw new Error("Fetch failed: "+r.status);
+      return r.arrayBuffer();
+    }).then(function(buf){
+      showOk("Processing PDF...");
+      return PDFLib.PDFDocument.load(buf).then(function(doc){
+        var total=doc.getPageCount();
+        showOk("PDF has "+total+" pages. Splitting...");
+        var mid=Math.min(99,total-1);
+        function makePdf(start,end){
+          return PDFLib.PDFDocument.create().then(function(newDoc){
+            var indices=[];
+            for(var i=start;i<=end&&i<total;i++)indices.push(i);
+            return newDoc.copyPages(doc,indices).then(function(pages){
+              pages.forEach(function(p){newDoc.addPage(p);});
+              return newDoc.save();
+            });
+          });
+        }
+        var p1Promise=makePdf(0,mid);
+        var p2Promise=(total>100)?makePdf(100,Math.min(199,total-1)):Promise.resolve(null);
+        return Promise.all([p1Promise,p2Promise]);
+      });
+    }).then(function(results){
+      showOk("Encoding...");
+      function toB64(bytes){
+        if(!bytes)return "";
+        var b=new Uint8Array(bytes),s="";
+        for(var i=0;i<b.byteLength;i++)s+=String.fromCharCode(b[i]);
+        return btoa(s);
+      }
+      var b1=toB64(results[0]),b2=toB64(results[1]);
+      try{
+        localStorage.setItem(KA,k);localStorage.setItem(KU,u);
+        localStorage.setItem(K1,b1);
+        if(b2)localStorage.setItem(K2,b2);
+      }catch(e){showErr("Storage full");btn.disabled=false;return;}
+      apiKey=k;pdf1=b1;pdf2=b2;
+      showOk("Loaded! Opening chat...");
+      setTimeout(showChat,600);
+    }).catch(function(e){showErr("Error: "+e.message);btn.disabled=false;});
+  };
+  script.onerror=function(){showErr("Failed to load pdf-lib");btn.disabled=false;};
+  document.head.appendChild(script);
 });
 rst.addEventListener("click",function(){
-  localStorage.removeItem(KB);
-  pdfB64="";hist=[];
+  localStorage.removeItem(K1);localStorage.removeItem(K2);
+  pdf1="";pdf2="";hist=[];
   chat.style.display="none";setup.style.display="block";msgs.innerHTML="";
 });
 snd.addEventListener("click",send);
 txt.addEventListener("keydown",function(e){if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();send();}});
 txt.addEventListener("input",function(){txt.style.height="auto";txt.style.height=Math.min(txt.scrollHeight,120)+"px";});
 function send(){
-  var t=txt.value.trim();
-  if(!t||busy)return;
+  var t=txt.value.trim();if(!t||busy)return;
   addMsg("u",t);txt.value="";txt.style.height="auto";
-  hist.push(t);
-  busy=true;snd.disabled=true;
+  hist.push(t);busy=true;snd.disabled=true;
   var tm=addMsg("a t","...");
   callApi(hist).then(function(reply){
-    tm.remove();addMsg("a",reply);
-    hist.push(reply);
-  }).catch(function(e){
-    tm.remove();addMsg("e","Error: "+e.message);
+    tm.remove();addMsg("a",reply);hist.push(reply);
+  }).catch(function(e){tm.remove();addMsg("e","Error: "+e.message);
   }).then(function(){busy=false;snd.disabled=false;});
 }
 function callApi(history){
-  var sys="You are a strict reference assistant for Maine 10-144 CMR Chapter 241 Subsurface Wastewater Disposal Rules. The full rule book PDF is attached - read ALL content including tables and figures. Answer ONLY from the rule book. Cite the exact section number with every answer. If not in the rule book, say: That is not addressed in Ch. 241 - consult a licensed designer or the Maine DEP.";
+  var sys="You are a strict reference assistant for Maine 10-144 CMR Chapter 241 Subsurface Wastewater Disposal Rules. The rule book is attached as PDF documents (split into parts if over 100 pages). Read ALL content including tables, figures, and images. Answer ONLY from the rule book. Cite the exact section number with every answer. If not found, say: That is not addressed in the provided sections - consult a licensed designer or the Maine DEP.";
   var messages=[];
   for(var i=0;i<history.length;i++){
     if(i%2===0){
       var content=[{type:"text",text:history[i]}];
       if(i===0){
-        content.unshift({type:"document",source:{type:"base64",media_type:"application/pdf",data:pdfB64},cache_control:{type:"ephemeral"}});
+        content.unshift({type:"document",source:{type:"base64",media_type:"application/pdf",data:pdf1},cache_control:{type:"ephemeral"}});
+        if(pdf2){content.unshift({type:"document",source:{type:"base64",media_type:"application/pdf",data:pdf2},cache_control:{type:"ephemeral"}});}
       }
       messages.push({role:"user",content:content});
     }else{
@@ -139,11 +162,7 @@ function callApi(history){
     return r.json();
   }).then(function(d){return d.content[0].text;});
 }
-function addMsg(cls,text){
-  var d=document.createElement("div");
-  d.className="m "+cls;d.textContent=text;
-  msgs.appendChild(d);msgs.scrollTop=msgs.scrollHeight;return d;
-}
+function addMsg(cls,text){var d=document.createElement("div");d.className="m "+cls;d.textContent=text;msgs.appendChild(d);msgs.scrollTop=msgs.scrollHeight;return d;}
 function showChat(){setup.style.display="none";chat.style.display="flex";addMsg("s","Rule book loaded including all tables. Ask anything about Ch. 241.");}
 function showErr(m){err.textContent=m;err.style.display="block";sts.style.display="none";}
 function showOk(m){sts.textContent=m;sts.style.display="block";err.style.display="none";}
