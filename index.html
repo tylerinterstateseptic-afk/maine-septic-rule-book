@@ -50,79 +50,90 @@ input:focus{border-color:#4f46e5}
 <div id="status"></div>
 </div>
 <div id="chat">
-<div id="hdr"><div><h2>Maine Ch. 241 Rule Reference</h2><span>Answers from the full rule book including tables</span></div><button id="rst">Setup</button></div>
+<div id="hdr"><div><h2>Maine Ch. 241 Rule Reference</h2><span>Full rule book — text and tables</span></div><button id="rst">Setup</button></div>
 <div id="msgs"></div>
 <div id="inp"><textarea id="txt" rows="1" placeholder="Ask about Ch. 241..."></textarea><button id="snd">^</button></div>
 </div>
 <script>
-var KA="ch241k",KU="ch241u",K1="ch241p1",K2="ch241p2";
-var apiKey="",pdf1="",pdf2="",hist=[],busy=false;
+var KA="ch241k",KU="ch241u",KT="ch241txt",KI="ch241imgs";
+var apiKey="",ruleText="",tableImgs=[],hist=[],busy=false;
 function ge(id){return document.getElementById(id);}
 var setup=ge("setup"),chat=ge("chat"),keyIn=ge("key"),urlIn=ge("url");
 var btn=ge("btn"),err=ge("err"),sts=ge("status"),msgs=ge("msgs"),txt=ge("txt"),snd=ge("snd"),rst=ge("rst");
 function init(){
-  var k=localStorage.getItem(KA),u=localStorage.getItem(KU),p1=localStorage.getItem(K1),p2=localStorage.getItem(K2);
-  if(k)keyIn.value=k;
-  if(u)urlIn.value=u;
-  if(k&&p1){apiKey=k;pdf1=p1;pdf2=p2||"";showChat();}
+  var k=localStorage.getItem(KA),u=localStorage.getItem(KU),t=localStorage.getItem(KT),imgs=localStorage.getItem(KI);
+  if(k)keyIn.value=k; if(u)urlIn.value=u;
+  if(k&&t){apiKey=k;ruleText=t;tableImgs=imgs?JSON.parse(imgs):[];showChat();}
 }
 btn.addEventListener("click",function(){
   var k=keyIn.value.trim(),u=urlIn.value.trim();
   hideMsg();
   if(k.indexOf("sk-")!==0){showErr("API key must start with sk-");return;}
   if(u.indexOf("http")!==0){showErr("Enter a valid URL");return;}
-  btn.disabled=true;showOk("Downloading PDF...");
+  btn.disabled=true; showOk("Downloading PDF...");
   var script=document.createElement("script");
-  script.src="https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js";
+  script.src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js";
   script.onload=function(){
-    fetch(u).then(function(r){
-      if(!r.ok)throw new Error("Fetch failed: "+r.status);
-      return r.arrayBuffer();
-    }).then(function(buf){
-      showOk("Processing PDF...");
-      return PDFLib.PDFDocument.load(buf).then(function(doc){
-        var total=doc.getPageCount();
-        showOk("PDF has "+total+" pages. Splitting...");
-        var mid=Math.min(99,total-1);
-        function makePdf(start,end){
-          return PDFLib.PDFDocument.create().then(function(newDoc){
-            var indices=[];
-            for(var i=start;i<=end&&i<total;i++)indices.push(i);
-            return newDoc.copyPages(doc,indices).then(function(pages){
-              pages.forEach(function(p){newDoc.addPage(p);});
-              return newDoc.save();
-            });
+    pdfjsLib.GlobalWorkerOptions.workerSrc="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+    fetch(u).then(function(r){if(!r.ok)throw new Error("Fetch failed:"+r.status);return r.arrayBuffer();}).then(function(buf){
+      showOk("Processing all "+0+" pages...");
+      return pdfjsLib.getDocument({data:buf}).promise.then(function(pdf){
+        var total=pdf.numPages; showOk("Extracting text from "+total+" pages...");
+        var textParts=[],i=1;
+        function nextText(){
+          if(i>total)return Promise.resolve(textParts.join("\n"));
+          return pdf.getPage(i).then(function(pg){return pg.getTextContent();}).then(function(c){
+            textParts.push(c.items.map(function(s){return s.str;}).join(" "));
+            if(i%20===0)showOk("Text: page "+i+"/"+total+"...");
+            i++;return nextText();
           });
         }
-        var p1Promise=makePdf(0,mid);
-        var p2Promise=(total>100)?makePdf(100,Math.min(199,total-1)):Promise.resolve(null);
-        return Promise.all([p1Promise,p2Promise]);
+        function renderTablePages(pdf,total){
+          var canvas=document.createElement("canvas");
+          var images=[],j=1;
+          function nextImg(){
+            if(j>total)return Promise.resolve(images);
+            return pdf.getPage(j).then(function(pg){
+              var vp=pg.getViewport({scale:0.6});
+              canvas.width=vp.width;canvas.height=vp.height;
+              var ctx=canvas.getContext("2d");
+              return pg.render({canvasContext:ctx,viewport:vp}).promise.then(function(){
+                images.push(canvas.toDataURL("image/jpeg",0.6).split(",")[1]);
+                showOk("Rendering page "+j+"/"+total+"...");
+                j++;return nextImg();
+              });
+            });
+          }
+          return nextImg();
+        }
+        return nextText().then(function(fullText){
+          showOk("Rendering table pages...");
+          return renderTablePages(pdf,total).then(function(imgs){
+            return {text:fullText,imgs:imgs};
+          });
+        });
       });
-    }).then(function(results){
-      showOk("Encoding...");
-      function toB64(bytes){
-        if(!bytes)return "";
-        var b=new Uint8Array(bytes),s="";
-        for(var i=0;i<b.byteLength;i++)s+=String.fromCharCode(b[i]);
-        return btoa(s);
-      }
-      var b1=toB64(results[0]),b2=toB64(results[1]);
+    }).then(function(result){
+      showOk("Saving...");
       try{
         localStorage.setItem(KA,k);localStorage.setItem(KU,u);
-        localStorage.setItem(K1,b1);
-        if(b2)localStorage.setItem(K2,b2);
-      }catch(e){showErr("Storage full");btn.disabled=false;return;}
-      apiKey=k;pdf1=b1;pdf2=b2;
-      showOk("Loaded! Opening chat...");
-      setTimeout(showChat,600);
+        localStorage.setItem(KT,result.text);
+        localStorage.setItem(KI,JSON.stringify(result.imgs));
+      }catch(e){
+        localStorage.setItem(KT,result.text);
+        localStorage.setItem(KI,JSON.stringify([]));
+        showOk("Note: table images too large to cache, will use text only");
+      }
+      apiKey=k;ruleText=result.text;tableImgs=result.imgs;
+      showOk("Loaded! Opening chat...");setTimeout(showChat,600);
     }).catch(function(e){showErr("Error: "+e.message);btn.disabled=false;});
   };
-  script.onerror=function(){showErr("Failed to load pdf-lib");btn.disabled=false;};
+  script.onerror=function(){showErr("Failed to load PDF.js");btn.disabled=false;};
   document.head.appendChild(script);
 });
 rst.addEventListener("click",function(){
-  localStorage.removeItem(K1);localStorage.removeItem(K2);
-  pdf1="";pdf2="";hist=[];
+  localStorage.removeItem(KT);localStorage.removeItem(KI);
+  ruleText="";tableImgs=[];hist=[];
   chat.style.display="none";setup.style.display="block";msgs.innerHTML="";
 });
 snd.addEventListener("click",send);
@@ -131,43 +142,447 @@ txt.addEventListener("input",function(){txt.style.height="auto";txt.style.height
 function send(){
   var t=txt.value.trim();if(!t||busy)return;
   addMsg("u",t);txt.value="";txt.style.height="auto";
-  hist.push(t);busy=true;snd.disabled=true;
-  var tm=addMsg("a t","...");
-  callApi(hist).then(function(reply){
-    tm.remove();addMsg("a",reply);hist.push(reply);
-  }).catch(function(e){tm.remove();addMsg("e","Error: "+e.message);
-  }).then(function(){busy=false;snd.disabled=false;});
-}
-function callApi(history){
-  var sys="You are a strict reference assistant for Maine 10-144 CMR Chapter 241 Subsurface Wastewater Disposal Rules. The rule book is attached as PDF documents (split into parts if over 100 pages). Read ALL content including tables, figures, and images. Answer ONLY from the rule book. Cite the exact section number with every answer. If not found, say: That is not addressed in the provided sections - consult a licensed designer or the Maine DEP.";
-  var messages=[];
-  for(var i=0;i<history.length;i++){
-    if(i%2===0){
-      var content=[{type:"text",text:history[i]}];
-      if(i===0){
-        content.unshift({type:"document",source:{type:"base64",media_type:"application/pdf",data:pdf1},cache_control:{type:"ephemeral"}});
-        if(pdf2){content.unshift({type:"document",source:{type:"base64",media_type:"application/pdf",data:pdf2},cache_control:{type:"ephemeral"}});}
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+  <title>Maine Ch. 241 Rule Reference</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f0f2f5; min-height: 100vh; display: flex; flex-direction: column; }
+
+    #setup-screen {
+      max-width: 480px; margin: 40px auto; padding: 24px;
+      background: #fff; border-radius: 12px;
+      box-shadow: 0 2px 16px rgba(0,0,0,0.1);
+    }
+    #setup-screen h1 { font-size: 1.2rem; color: #1a1a2e; margin-bottom: 6px; }
+    #setup-screen p { font-size: 0.85rem; color: #666; margin-bottom: 20px; }
+    label { display: block; font-size: 0.8rem; font-weight: 600; color: #444; margin-bottom: 4px; margin-top: 14px; }
+    input[type="text"], input[type="password"] {
+      width: 100%; padding: 10px 12px; border: 1px solid #ddd; border-radius: 8px;
+      font-size: 0.9rem; outline: none;
+    }
+    input:focus { border-color: #4f46e5; }
+    #save-btn {
+      margin-top: 20px; width: 100%; padding: 12px;
+      background: #4f46e5; color: #fff; border: none;
+      border-radius: 8px; font-size: 0.95rem; font-weight: 600;
+      cursor: pointer;
+    }
+    #save-btn:hover { background: #4338ca; }
+    #save-btn:disabled { background: #9ca3af; cursor: not-allowed; }
+    #setup-error { color: #dc2626; font-size: 0.82rem; margin-top: 10px; display: none; }
+    #setup-status { color: #16a34a; font-size: 0.82rem; margin-top: 10px; display: none; }
+    #progress-bar-wrap { margin-top: 10px; display: none; background: #e5e7eb; border-radius: 6px; height: 8px; }
+    #progress-bar { height: 8px; background: #4f46e5; border-radius: 6px; width: 0%; transition: width 0.2s; }
+
+    #chat-screen { display: none; flex-direction: column; height: 100vh; max-width: 700px; margin: 0 auto; width: 100%; }
+
+    #chat-header {
+      background: #1a1a2e; color: #fff; padding: 14px 16px;
+      display: flex; align-items: center; justify-content: space-between;
+      flex-shrink: 0;
+    }
+    #chat-header h2 { font-size: 0.95rem; font-weight: 600; }
+    #chat-header span { font-size: 0.75rem; color: #a5b4fc; }
+    #reset-btn {
+      background: transparent; border: 1px solid #4f46e5; color: #a5b4fc;
+      padding: 5px 10px; border-radius: 6px; font-size: 0.75rem; cursor: pointer;
+    }
+    #reset-btn:hover { background: #4f46e5; color: #fff; }
+
+    #messages {
+      flex: 1; overflow-y: auto; padding: 16px;
+      display: flex; flex-direction: column; gap: 12px;
+    }
+    .msg { max-width: 85%; padding: 12px 14px; border-radius: 12px; font-size: 0.9rem; line-height: 1.5; white-space: pre-wrap; }
+    .msg.user { background: #4f46e5; color: #fff; align-self: flex-end; border-bottom-right-radius: 4px; }
+    .msg.assistant { background: #fff; color: #1a1a2e; align-self: flex-start; border-bottom-left-radius: 4px; box-shadow: 0 1px 4px rgba(0,0,0,0.08); }
+    .msg.system { background: #fef3c7; color: #92400e; font-size: 0.8rem; align-self: center; text-align: center; border-radius: 8px; padding: 8px 12px; }
+    .msg.error { background: #fee2e2; color: #dc2626; font-size: 0.85rem; align-self: center; }
+    .typing { color: #9ca3af; font-style: italic; }
+
+    #input-area {
+      padding: 12px 16px 20px;
+      background: #fff;
+      border-top: 1px solid #e5e7eb;
+      flex-shrink: 0;
+      display: flex; gap: 8px; align-items: flex-end;
+    }
+    #user-input {
+      flex: 1; padding: 10px 14px; border: 1px solid #ddd;
+      border-radius: 24px; font-size: 0.9rem; resize: none;
+      max-height: 120px; outline: none; font-family: inherit;
+    }
+    #user-input:focus { border-color: #4f46e5; }
+    #send-btn {
+      background: #4f46e5; color: #fff; border: none;
+      border-radius: 50%; width: 40px; height: 40px;
+      cursor: pointer; font-size: 1.1rem; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+    }
+    #send-btn:hover { background: #4338ca; }
+    #send-btn:disabled { background: #c4b5fd; cursor: not-allowed; }
+  </style>
+</head>
+<body>
+
+<!-- SETUP SCREEN -->
+<div id="setup-screen">
+  <h1>Maine Ch. 241 Rule Reference</h1>
+  <p>One-time setup. Your key and PDF are saved locally in this browser only.</p>
+
+  <label for="api-key-input">Anthropic API Key</label>
+  <input type="password" id="api-key-input" placeholder="sk-ant-api03-..." autocomplete="off" />
+
+  <label for="pdf-url-input">PDF URL (raw GitHub link)</label>
+  <input type="text" id="pdf-url-input" placeholder="https://raw.githubusercontent.com/..." />
+
+  <button id="save-btn">Save &amp; Load Rule Book</button>
+  <div id="progress-bar-wrap"><div id="progress-bar"></div></div>
+  <div id="setup-error"></div>
+  <div id="setup-status"></div>
+</div>
+
+<!-- CHAT SCREEN -->
+<div id="chat-screen">
+  <div id="chat-header">
+    <div>
+      <h2>Maine Ch. 241 Rule Reference</h2>
+      <span>Answers grounded strictly in the rule text</span>
+    </div>
+    <button id="reset-btn" title="Change API key or PDF URL">Setup</button>
+  </div>
+  <div id="messages"></div>
+  <div id="input-area">
+    <textarea id="user-input" rows="1" placeholder="Ask a question about Ch. 241..."></textarea>
+    <button id="send-btn">&#8593;</button>
+  </div>
+</div>
+
+<script>
+  var PROXY_URL    = 'https://ch241-proxy.tyler-interstateseptic.workers.dev';
+  var KEY_API      = 'ch241k';
+  var KEY_URL      = 'ch241u';
+  var KEY_TEXT     = 'ch241txt';
+  var KEY_IMGS     = 'ch241imgs';
+  var MAX_IMGS     = 20;
+  var IMG_SCALE    = 0.6;
+  var IMG_QUALITY  = 0.6;
+
+  var apiKey = '';
+  var ruleText = '';
+  var pageImages = [];
+  var conversationHistory = [];
+  var isLoading = false;
+
+  var setupScreen  = document.getElementById('setup-screen');
+  var chatScreen   = document.getElementById('chat-screen');
+  var apiKeyInput  = document.getElementById('api-key-input');
+  var pdfUrlInput  = document.getElementById('pdf-url-input');
+  var saveBtn      = document.getElementById('save-btn');
+  var setupError   = document.getElementById('setup-error');
+  var setupStatus  = document.getElementById('setup-status');
+  var progressWrap = document.getElementById('progress-bar-wrap');
+  var progressBar  = document.getElementById('progress-bar');
+  var messagesDiv  = document.getElementById('messages');
+  var userInput    = document.getElementById('user-input');
+  var sendBtn      = document.getElementById('send-btn');
+  var resetBtn     = document.getElementById('reset-btn');
+
+  function init() {
+    var savedKey   = localStorage.getItem(KEY_API);
+    var savedText  = localStorage.getItem(KEY_TEXT);
+    var savedImgs  = localStorage.getItem(KEY_IMGS);
+
+    if (savedKey) { apiKeyInput.value = savedKey; }
+    var savedUrl = localStorage.getItem(KEY_URL);
+    if (savedUrl) { pdfUrlInput.value = savedUrl; }
+
+    if (savedKey && savedText) {
+      apiKey    = savedKey;
+      ruleText  = savedText;
+      if (savedImgs) {
+        try { pageImages = JSON.parse(savedImgs); } catch(e) { pageImages = []; }
       }
-      messages.push({role:"user",content:content});
-    }else{
-      messages.push({role:"assistant",content:history[i]});
+      showChat();
     }
   }
-  return fetch("https://ch241-proxy.tyler-interstateseptic.workers.dev",{
-    method:"POST",
-    headers:{"content-type":"application/json","x-api-key":apiKey,"anthropic-version":"2023-06-01","anthropic-beta":"pdfs-2024-09-25"},
-    body:JSON.stringify({model:"claude-haiku-4-5-20251001",max_tokens:1024,system:sys,messages:messages})
-  }).then(function(r){
-    if(!r.ok)return r.json().then(function(e){throw new Error(e.error&&e.error.message?e.error.message:"API error "+r.status);});
-    return r.json();
-  }).then(function(d){return d.content[0].text;});
-}
-function addMsg(cls,text){var d=document.createElement("div");d.className="m "+cls;d.textContent=text;msgs.appendChild(d);msgs.scrollTop=msgs.scrollHeight;return d;}
-function showChat(){setup.style.display="none";chat.style.display="flex";addMsg("s","Rule book loaded including all tables. Ask anything about Ch. 241.");}
-function showErr(m){err.textContent=m;err.style.display="block";sts.style.display="none";}
-function showOk(m){sts.textContent=m;sts.style.display="block";err.style.display="none";}
-function hideMsg(){err.style.display="none";sts.style.display="none";}
-init();
+
+  saveBtn.addEventListener('click', function() {
+    var key = apiKeyInput.value.trim();
+    var url = pdfUrlInput.value.trim();
+
+    hideSetupMessages();
+
+    if (!key || key.indexOf('sk-') !== 0) {
+      showSetupError('API key must start with sk-');
+      return;
+    }
+    if (!url || url.indexOf('http') !== 0) {
+      showSetupError('Enter a valid PDF URL starting with http');
+      return;
+    }
+
+    saveBtn.disabled = true;
+    progressWrap.style.display = 'block';
+    progressBar.style.width = '0%';
+    showSetupStatus('Starting...');
+
+    loadPdfJs().then(function() {
+      showSetupStatus('Fetching PDF...');
+      progressBar.style.width = '5%';
+      return fetch(url);
+    }).then(function(res) {
+      if (!res.ok) { throw new Error('Could not fetch PDF (HTTP ' + res.status + ')'); }
+      showSetupStatus('Downloading PDF...');
+      progressBar.style.width = '15%';
+      return res.arrayBuffer();
+    }).then(function(buf) {
+      showSetupStatus('Loading PDF pages...');
+      progressBar.style.width = '20%';
+      return window.pdfjsLib.getDocument({ data: buf }).promise;
+    }).then(function(pdf) {
+      var numPages = pdf.numPages;
+      var fullText = '';
+      var images = [];
+      var canvas = document.createElement('canvas');
+      var ctx = canvas.getContext('2d');
+
+      function processPage(i) {
+        if (i > numPages) {
+          return Promise.resolve();
+        }
+        var pct = Math.round(20 + (i / numPages) * 75);
+        progressBar.style.width = pct + '%';
+        showSetupStatus('Processing page ' + i + ' of ' + numPages + '...');
+
+        return pdf.getPage(i).then(function(page) {
+          return page.getTextContent().then(function(content) {
+            var pageText = content.items.map(function(s) { return s.str; }).join(' ');
+            fullText += pageText + '\n';
+
+            var viewport = page.getViewport({ scale: IMG_SCALE });
+            canvas.width  = viewport.width;
+            canvas.height = viewport.height;
+            return page.render({ canvasContext: ctx, viewport: viewport }).promise;
+          }).then(function() {
+            var dataUrl = canvas.toDataURL('image/jpeg', IMG_QUALITY);
+            var b64 = dataUrl.split(',')[1];
+            images.push(b64);
+            return processPage(i + 1);
+          });
+        });
+      }
+
+      return processPage(1).then(function() {
+        return { text: fullText, images: images };
+      });
+    }).then(function(result) {
+      if (!result.text || result.text.length < 500) {
+        throw new Error('PDF text too short — check the URL');
+      }
+
+      progressBar.style.width = '98%';
+      showSetupStatus('Saving to browser storage...');
+
+      localStorage.setItem(KEY_API, key);
+      localStorage.setItem(KEY_URL, url);
+      localStorage.setItem(KEY_TEXT, result.text);
+
+      var imgSlice = result.images.slice(0, MAX_IMGS);
+      try {
+        localStorage.setItem(KEY_IMGS, JSON.stringify(imgSlice));
+      } catch(e) {
+        try {
+          localStorage.setItem(KEY_IMGS, JSON.stringify(result.images.slice(0, 5)));
+        } catch(e2) {
+          localStorage.setItem(KEY_IMGS, '[]');
+        }
+      }
+
+      apiKey    = key;
+      ruleText  = result.text;
+      pageImages = imgSlice;
+
+      progressBar.style.width = '100%';
+      showSetupStatus('Loaded! Opening chat...');
+      setTimeout(showChat, 800);
+    }).catch(function(e) {
+      showSetupError('Error: ' + e.message);
+      saveBtn.disabled = false;
+      progressWrap.style.display = 'none';
+    });
+  });
+
+  resetBtn.addEventListener('click', function() {
+    localStorage.removeItem(KEY_TEXT);
+    localStorage.removeItem(KEY_IMGS);
+    showSetup();
+  });
+
+  function loadPdfJs() {
+    return new Promise(function(resolve, reject) {
+      if (window.pdfjsLib) { resolve(); return; }
+      var script = document.createElement('script');
+      script.src = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js';
+      script.onload = function() {
+        window.pdfjsLib.GlobalWorkerOptions.workerSrc =
+          'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+        resolve();
+      };
+      script.onerror = function() { reject(new Error('Failed to load PDF.js')); };
+      document.head.appendChild(script);
+    });
+  }
+
+  sendBtn.addEventListener('click', sendMessage);
+  userInput.addEventListener('keydown', function(e) {
+    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); }
+  });
+  userInput.addEventListener('input', function() {
+    userInput.style.height = 'auto';
+    userInput.style.height = Math.min(userInput.scrollHeight, 120) + 'px';
+  });
+
+  function sendMessage() {
+    var text = userInput.value.trim();
+    if (!text || isLoading) { return; }
+
+    appendMessage('user', text);
+    userInput.value = '';
+    userInput.style.height = 'auto';
+    conversationHistory.push({ role: 'user', content: text });
+
+    isLoading = true;
+    sendBtn.disabled = true;
+    var typingMsg = appendMessage('assistant', 'Thinking...', 'typing');
+
+    callClaude(conversationHistory).then(function(reply) {
+      typingMsg.remove();
+      appendMessage('assistant', reply);
+      conversationHistory.push({ role: 'assistant', content: reply });
+      isLoading = false;
+      sendBtn.disabled = false;
+    }).catch(function(e) {
+      typingMsg.remove();
+      appendMessage('error', 'Error: ' + e.message);
+      isLoading = false;
+      sendBtn.disabled = false;
+    });
+  }
+
+  function callClaude(history) {
+    var systemPrompt = 'You are a strict reference assistant for Maine\'s 10-144 CMR Chapter 241 Subsurface Wastewater Disposal Rules.\n\n'
+      + 'Answer ONLY using the rule text and page images provided. Do not use outside knowledge.\n'
+      + 'For every answer, cite the specific section number (e.g., "Section 3(B)(4)") where the information comes from.\n'
+      + 'If a question involves numerical values like setback distances, look carefully at the table images provided.\n'
+      + 'If the answer is not in the rule text, say: "That is not addressed in Ch. 241 — consult a licensed designer or the Maine DEP."\n\n'
+      + 'RULE TEXT:\n'
+      + ruleText.substring(0, 80000);
+
+    var messages = history.slice(-10).map(function(m, idx) { return m; });
+
+    if (pageImages && pageImages.length > 0) {
+      var augmented = [];
+      var firstUserDone = false;
+      for (var i = 0; i < messages.length; i++) {
+        var m = messages[i];
+        if (m.role === 'user' && !firstUserDone) {
+          firstUserDone = true;
+          var content = [{ type: 'text', text: m.content }];
+          for (var j = 0; j < pageImages.length && j < MAX_IMGS; j++) {
+            content.push({
+              type: 'image',
+              source: {
+                type: 'base64',
+                media_type: 'image/jpeg',
+                data: pageImages[j]
+              }
+            });
+          }
+          augmented.push({ role: 'user', content: content });
+        } else {
+          augmented.push(m);
+        }
+      }
+      messages = augmented;
+    }
+
+    var body = JSON.stringify({
+      model: 'claude-haiku-4-5-20251001',
+      max_tokens: 1024,
+      system: systemPrompt,
+      messages: messages
+    });
+
+    return fetch(PROXY_URL, {
+      method: 'POST',
+      headers: {
+        'content-type': 'application/json',
+        'x-api-key': apiKey,
+        'anthropic-version': '2023-06-01'
+      },
+      body: body
+    }).then(function(res) {
+      return res.json().then(function(data) {
+        if (!res.ok) {
+          throw new Error(data.error ? data.error.message : ('API error ' + res.status));
+        }
+        if (!data.content || !data.content[0]) {
+          throw new Error('Empty response from API');
+        }
+        return data.content[0].text;
+      });
+    });
+  }
+
+  function appendMessage(role, text, extra) {
+    var div = document.createElement('div');
+    div.className = 'msg ' + role + (extra ? ' ' + extra : '');
+    div.textContent = text;
+    messagesDiv.appendChild(div);
+    messagesDiv.scrollTop = messagesDiv.scrollHeight;
+    return div;
+  }
+
+  function showChat() {
+    setupScreen.style.display = 'none';
+    chatScreen.style.display = 'flex';
+    messagesDiv.innerHTML = '';
+    var imgCount = pageImages ? pageImages.length : 0;
+    appendMessage('system', 'Rule book loaded (' + imgCount + ' page images). Ask any question about Ch. 241.');
+    userInput.focus();
+  }
+
+  function showSetup() {
+    chatScreen.style.display = 'none';
+    setupScreen.style.display = 'block';
+    conversationHistory = [];
+    messagesDiv.innerHTML = '';
+    saveBtn.disabled = false;
+    progressWrap.style.display = 'none';
+  }
+
+  function showSetupError(msg) {
+    setupError.textContent = msg;
+    setupError.style.display = 'block';
+    setupStatus.style.display = 'none';
+  }
+
+  function showSetupStatus(msg) {
+    setupStatus.textContent = msg;
+    setupStatus.style.display = 'block';
+    setupError.style.display = 'none';
+  }
+
+  function hideSetupMessages() {
+    setupError.style.display = 'none';
+    setupStatus.style.display = 'none';
+  }
+
+  init();
 </script>
 </body>
 </html>
