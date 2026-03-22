@@ -1,178 +1,170 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
-  <title>Maine Ch. 241 Rule Reference</title>
-  <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f0f2f5; min-height: 100vh; display: flex; flex-direction: column; }
-    #setup-screen { max-width: 480px; margin: 40px auto; padding: 24px; background: #fff; border-radius: 12px; box-shadow: 0 2px 16px rgba(0,0,0,0.1); }
-    #setup-screen h1 { font-size: 1.2rem; color: #1a1a2e; margin-bottom: 6px; }
-    #setup-screen p { font-size: 0.85rem; color: #666; margin-bottom: 20px; }
-    label { display: block; font-size: 0.8rem; font-weight: 600; color: #444; margin-bottom: 4px; margin-top: 14px; }
-    input[type="text"], input[type="password"] { width: 100%; padding: 10px 12px; border: 1px solid #ddd; border-radius: 8px; font-size: 0.9rem; outline: none; }
-    input:focus { border-color: #4f46e5; }
-    #save-btn { margin-top: 20px; width: 100%; padding: 12px; background: #4f46e5; color: #fff; border: none; border-radius: 8px; font-size: 0.95rem; font-weight: 600; cursor: pointer; }
-    #save-btn:hover { background: #4338ca; }
-    #setup-error { color: #dc2626; font-size: 0.82rem; margin-top: 10px; display: none; }
-    #setup-status { color: #16a34a; font-size: 0.82rem; margin-top: 10px; display: none; }
-    #chat-screen { display: none; flex-direction: column; height: 100vh; max-width: 700px; margin: 0 auto; width: 100%; }
-    #chat-header { background: #1a1a2e; color: #fff; padding: 14px 16px; display: flex; align-items: center; justify-content: space-between; flex-shrink: 0; }
-    #chat-header h2 { font-size: 0.95rem; font-weight: 600; }
-    #chat-header span { font-size: 0.75rem; color: #a5b4fc; }
-    #reset-btn { background: transparent; border: 1px solid #4f46e5; color: #a5b4fc; padding: 5px 10px; border-radius: 6px; font-size: 0.75rem; cursor: pointer; }
-    #reset-btn:hover { background: #4f46e5; color: #fff; }
-    #messages { flex: 1; overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 12px; }
-    .msg { max-width: 85%; padding: 12px 14px; border-radius: 12px; font-size: 0.9rem; line-height: 1.5; }
-    .msg.user { background: #4f46e5; color: #fff; align-self: flex-end; border-bottom-right-radius: 4px; }
-    .msg.assistant { background: #fff; color: #1a1a2e; align-self: flex-start; border-bottom-left-radius: 4px; box-shadow: 0 1px 4px rgba(0,0,0,0.08); }
-    .msg.system { background: #fef3c7; color: #92400e; font-size: 0.8rem; align-self: center; text-align: center; border-radius: 8px; padding: 8px 12px; }
-    .msg.error { background: #fee2e2; color: #dc2626; font-size: 0.85rem; align-self: center; }
-    .typing { color: #9ca3af; font-style: italic; }
-    #input-area { padding: 12px 16px 20px; background: #fff; border-top: 1px solid #e5e7eb; flex-shrink: 0; display: flex; gap: 8px; align-items: flex-end; }
-    #user-input { flex: 1; padding: 10px 14px; border: 1px solid #ddd; border-radius: 24px; font-size: 0.9rem; resize: none; max-height: 120px; outline: none; font-family: inherit; }
-    #user-input:focus { border-color: #4f46e5; }
-    #send-btn { background: #4f46e5; color: #fff; border: none; border-radius: 50%; width: 40px; height: 40px; cursor: pointer; font-size: 1.1rem; flex-shrink: 0; display: flex; align-items: center; justify-content: center; }
-    #send-btn:hover { background: #4338ca; }
-    #send-btn:disabled { background: #c4b5fd; cursor: not-allowed; }
-  </style>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Maine Ch. 241 Reference</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:sans-serif;background:#f0f2f5;min-height:100vh;display:flex;flex-direction:column}
+#setup{max-width:480px;margin:40px auto;padding:24px;background:#fff;border-radius:12px;box-shadow:0 2px 16px rgba(0,0,0,.1)}
+h1{font-size:1.2rem;color:#1a1a2e;margin-bottom:8px}
+p{font-size:.85rem;color:#666;margin-bottom:16px}
+label{display:block;font-size:.8rem;font-weight:600;color:#444;margin:12px 0 4px}
+input{width:100%;padding:10px 12px;border:1px solid #ddd;border-radius:8px;font-size:.9rem;outline:none}
+input:focus{border-color:#4f46e5}
+#btn{margin-top:18px;width:100%;padding:12px;background:#4f46e5;color:#fff;border:none;border-radius:8px;font-size:.95rem;font-weight:600;cursor:pointer}
+#btn:hover{background:#4338ca}
+#err{color:#dc2626;font-size:.82rem;margin-top:8px;display:none}
+#status{color:#16a34a;font-size:.82rem;margin-top:8px;display:none}
+#chat{display:none;flex-direction:column;height:100vh;max-width:700px;margin:0 auto;width:100%}
+#hdr{background:#1a1a2e;color:#fff;padding:14px 16px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+#hdr h2{font-size:.95rem}
+#hdr span{font-size:.75rem;color:#a5b4fc}
+#rst{background:transparent;border:1px solid #4f46e5;color:#a5b4fc;padding:5px 10px;border-radius:6px;font-size:.75rem;cursor:pointer}
+#msgs{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:12px}
+.m{max-width:85%;padding:12px 14px;border-radius:12px;font-size:.9rem;line-height:1.5}
+.u{background:#4f46e5;color:#fff;align-self:flex-end;border-bottom-right-radius:4px}
+.a{background:#fff;color:#1a1a2e;align-self:flex-start;border-bottom-left-radius:4px;box-shadow:0 1px 4px rgba(0,0,0,.08)}
+.s{background:#fef3c7;color:#92400e;font-size:.8rem;align-self:center;border-radius:8px;padding:8px 12px;text-align:center}
+.e{background:#fee2e2;color:#dc2626;font-size:.85rem;align-self:center;border-radius:8px;padding:8px 12px}
+.t{color:#9ca3af;font-style:italic}
+#inp{padding:12px 16px 20px;background:#fff;border-top:1px solid #e5e7eb;flex-shrink:0;display:flex;gap:8px;align-items:flex-end}
+#txt{flex:1;padding:10px 14px;border:1px solid #ddd;border-radius:24px;font-size:.9rem;resize:none;max-height:120px;outline:none;font-family:inherit}
+#txt:focus{border-color:#4f46e5}
+#snd{background:#4f46e5;color:#fff;border:none;border-radius:50%;width:40px;height:40px;cursor:pointer;font-size:1.1rem;flex-shrink:0}
+#snd:hover{background:#4338ca}
+#snd:disabled{background:#c4b5fd;cursor:not-allowed}
+</style>
 </head>
 <body>
-<div id="setup-screen">
-  <h1>Maine Ch. 241 Rule Reference</h1>
-  <p>One-time setup. Your key and PDF URL are saved locally in this browser.</p>
-  <label for="api-key-input">Anthropic API Key</label>
-  <input type="password" id="api-key-input" placeholder="sk-ant-api03-..." autocomplete="off" />
-  <label for="pdf-url-input">PDF URL</label>
-  <input type="text" id="pdf-url-input" value="https://raw.githubusercontent.com/tylerinterstateseptic-afk/maine-septic-rule-book/main/ch241.pdf" />
-  <button id="save-btn">Save &amp; Load Rule Book</button>
-  <div id="setup-error"></div>
-  <div id="setup-status"></div>
+<div id="setup">
+<h1>Maine Ch. 241 Rule Reference</h1>
+<p>One-time setup. Saved locally in your browser.</p>
+<label>Anthropic API Key</label>
+<input type="password" id="key" placeholder="sk-ant-api03-..."/>
+<label>PDF URL</label>
+<input type="text" id="url" value="https://raw.githubusercontent.com/tylerinterstateseptic-afk/maine-septic-rule-book/main/ch241.pdf"/>
+<button id="btn">Save and Load Rule Book</button>
+<div id="err"></div>
+<div id="status"></div>
 </div>
-<div id="chat-screen">
-  <div id="chat-header">
-    <div><h2>Maine Ch. 241 Rule Reference</h2><span>Answers grounded strictly in the rule text</span></div>
-    <button id="reset-btn">Setup</button>
-  </div>
-  <div id="messages"></div>
-  <div id="input-area">
-    <textarea id="user-input" rows="1" placeholder="Ask a question about Ch. 241..."></textarea>
-    <button id="send-btn">&#8593;</button>
-  </div>
+<div id="chat">
+<div id="hdr"><div><h2>Maine Ch. 241 Rule Reference</h2><span>Answers from the rule text only</span></div><button id="rst">Setup</button></div>
+<div id="msgs"></div>
+<div id="inp"><textarea id="txt" rows="1" placeholder="Ask about Ch. 241..."></textarea><button id="snd">^</button></div>
 </div>
 <script>
-  const K_API='ch241_api_key',K_URL='ch241_pdf_url',K_TXT='ch241_pdf_text';
-  let apiKey='',ruleText='',history=[],loading=false;
-  const $=id=>document.getElementById(id);
-  const setupScreen=$('setup-screen'),chatScreen=$('chat-screen'),
-    apiKeyInput=$('api-key-input'),pdfUrlInput=$('pdf-url-input'),
-    saveBtn=$('save-btn'),setupError=$('setup-error'),setupStatus=$('setup-status'),
-    msgs=$('messages'),userInput=$('user-input'),sendBtn=$('send-btn'),resetBtn=$('reset-btn');
-
-  function init(){
-    const k=localStorage.getItem(K_API),u=localStorage.getItem(K_URL),t=localStorage.getItem(K_TXT);
-    if(k)apiKeyInput.value=k;
-    if(u)pdfUrlInput.value=u;
-    if(k&&t){apiKey=k;ruleText=t;showChat();}
-  }
-
-  saveBtn.addEventListener('click',async()=>{
-    const key=apiKeyInput.value.trim(),url=pdfUrlInput.value.trim();
-    hideMsg();
-    if(!key.startsWith('sk-')){showErr('API key must start with sk-');return;}
-    if(!url.startsWith('http')){showErr('Enter a valid URL');return;}
-    saveBtn.disabled=true;showOk('Downloading PDF...');
-    try{
-      const text=await extractPDF(url);
-      if(!text||text.length<500)throw new Error('PDF too short — check URL');
-      localStorage.setItem(K_API,key);localStorage.setItem(K_URL,url);localStorage.setItem(K_TXT,text);
-      apiKey=key;ruleText=text;showOk('Loaded!');setTimeout(showChat,600);
-    }catch(e){showErr('Error: '+e.message);saveBtn.disabled=false;}
+var KA="ch241k",KU="ch241u",KT="ch241t";
+var apiKey="",ruleText="",hist=[],busy=false;
+function ge(id){return document.getElementById(id);}
+var setup=ge("setup"),chat=ge("chat"),keyIn=ge("key"),urlIn=ge("url");
+var btn=ge("btn"),err=ge("err"),sts=ge("status"),msgs=ge("msgs"),txt=ge("txt"),snd=ge("snd"),rst=ge("rst");
+function init(){
+  var k=localStorage.getItem(KA),u=localStorage.getItem(KU),t=localStorage.getItem(KT);
+  if(k)keyIn.value=k;
+  if(u)urlIn.value=u;
+  if(k&&t){apiKey=k;ruleText=t;showChat();}
+}
+btn.addEventListener("click",function(){
+  var k=keyIn.value.trim(),u=urlIn.value.trim();
+  hideMsg();
+  if(k.indexOf("sk-")!==0){showErr("API key must start with sk-");return;}
+  if(u.indexOf("http")!==0){showErr("Enter a valid URL");return;}
+  btn.disabled=true;
+  showOk("Downloading PDF...");
+  getPDF(u).then(function(text){
+    if(!text||text.length<500){showErr("PDF text too short");btn.disabled=false;return;}
+    localStorage.setItem(KA,k);localStorage.setItem(KU,u);localStorage.setItem(KT,text);
+    apiKey=k;ruleText=text;
+    showOk("Loaded! Opening chat...");
+    setTimeout(showChat,800);
+  }).catch(function(e){showErr("Error: "+e.message);btn.disabled=false;});
+});
+rst.addEventListener("click",function(){localStorage.removeItem(KT);showSetup();});
+function getPDF(url){
+  showOk("Fetching PDF...");
+  return fetch(url).then(function(r){
+    if(!r.ok)throw new Error("Fetch failed: "+r.status);
+    return r.arrayBuffer();
+  }).then(function(buf){
+    showOk("Extracting text...");
+    return loadPdfJs().then(function(lib){
+      return lib.getDocument({data:buf}).promise;
+    }).then(function(pdf){
+      var pages=pdf.numPages,i=1,all="";
+      function nextPage(){
+        if(i>pages)return Promise.resolve(all);
+        return pdf.getPage(i).then(function(pg){
+          return pg.getTextContent();
+        }).then(function(c){
+          all+=c.items.map(function(s){return s.str;}).join(" ")+"\n";
+          if(i%10===0)showOk("Page "+i+" of "+pages+"...");
+          i++;return nextPage();
+        });
+      }
+      return nextPage();
+    });
   });
-
-  resetBtn.addEventListener('click',()=>{localStorage.removeItem(K_TXT);showSetup();});
-
-  async function extractPDF(url){
-    showOk('Fetching PDF...');
-    const res=await fetch(url);
-    if(!res.ok)throw new Error('Fetch failed ('+res.status+')');
-    const buf=await res.arrayBuffer();
-    showOk('Extracting text...');
-    const lib=await loadPdfJs();
-    const pdf=await lib.getDocument({data:buf}).promise;
-    let txt='';
-    for(let i=1;i<=pdf.numPages;i++){
-      const c=await(await pdf.getPage(i)).getTextContent();
-      txt+=c.items.map(s=>s.str).join(' ')+'
-';
-      if(i%10===0)showOk('Page '+i+'/'+pdf.numPages+'...');
-    }
-    return txt;
-  }
-
-  function loadPdfJs(){
-    return new Promise((res,rej)=>{
-      if(window.pdfjsLib){res(window.pdfjsLib);return;}
-      const s=document.createElement('script');
-      s.src='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js';
-      s.onload=()=>{
-        window.pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
-        res(window.pdfjsLib);
-      };
-      s.onerror=()=>rej(new Error('Could not load PDF.js'));
-      document.head.appendChild(s);
-    });
-  }
-
-  sendBtn.addEventListener('click',send);
-  userInput.addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();send();}});
-  userInput.addEventListener('input',()=>{userInput.style.height='auto';userInput.style.height=Math.min(userInput.scrollHeight,120)+'px';});
-
-  async function send(){
-    const text=userInput.value.trim();if(!text||loading)return;
-    addMsg('user',text);userInput.value='';userInput.style.height='auto';
-    history.push({role:'user',content:text});
-    loading=true;sendBtn.disabled=true;
-    const tm=addMsg('assistant','...','typing');
-    try{
-      const reply=await ask(history);
-      tm.remove();addMsg('assistant',reply);
-      history.push({role:'assistant',content:reply});
-    }catch(e){tm.remove();addMsg('error','Error: '+e.message);}
-    loading=false;sendBtn.disabled=false;
-  }
-
-  async function ask(hist){
-    const sys='You are a strict reference assistant for Maine 10-144 CMR Chapter 241 Subsurface Wastewater Disposal Rules. Answer ONLY from the rule text below. Cite the exact section number with every answer. If the answer is not in the text, say: "That is not addressed in Ch. 241 — consult a licensed designer or the Maine DEP."
-
-RULE TEXT:
-'+ruleText.substring(0,90000);
-    const r=await fetch('https://api.anthropic.com/v1/messages',{
-      method:'POST',
-      headers:{
-        'content-type':'application/json',
-        'x-api-key':apiKey,
-        'anthropic-version':'2023-06-01',
-        'anthropic-dangerous-direct-browser-calls':'true'
-      },
-      body:JSON.stringify({model:'claude-haiku-4-5-20251001',max_tokens:1024,system:sys,messages:hist.slice(-10)})
-    });
-    if(!r.ok){const e=await r.json().catch(()=>({}));throw new Error(e.error?.message||'API error '+r.status);}
-    return(await r.json()).content[0].text;
-  }
-
-  function addMsg(role,text,extra){
-    const d=document.createElement('div');
-    d.className='msg '+role+(extra?' '+extra:'');
-    d.textContent=text;msgs.appendChild(d);msgs.scrollTop=msgs.scrollHeight;return d;
-  }
-  function showChat(){setupScreen.style.display='none';chatScreen.style.display='flex';addMsg('system','Rule book loaded. Ask anything about Ch. 241 and I will cite the exact section.');userInput.focus();}
-  function showSetup(){chatScreen.style.display='none';setupScreen.style.display='block';history=[];msgs.innerHTML='';}
-  function showErr(m){setupError.textContent=m;setupError.style.display='block';setupStatus.style.display='none';}
-  function showOk(m){setupStatus.textContent=m;setupStatus.style.display='block';setupError.style.display='none';}
-  function hideMsg(){setupError.style.display='none';setupStatus.style.display='none';}
-  init();
+}
+function loadPdfJs(){
+  return new Promise(function(resolve,reject){
+    if(window.pdfjsLib){resolve(window.pdfjsLib);return;}
+    var s=document.createElement("script");
+    s.src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js";
+    s.onload=function(){
+      window.pdfjsLib.GlobalWorkerOptions.workerSrc="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+      resolve(window.pdfjsLib);
+    };
+    s.onerror=function(){reject(new Error("Failed to load PDF.js"));};
+    document.head.appendChild(s);
+  });
+}
+snd.addEventListener("click",send);
+txt.addEventListener("keydown",function(e){if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();send();}});
+txt.addEventListener("input",function(){txt.style.height="auto";txt.style.height=Math.min(txt.scrollHeight,120)+"px";});
+function send(){
+  var t=txt.value.trim();
+  if(!t||busy)return;
+  addMsg("u",t);txt.value="";txt.style.height="auto";
+  hist.push({role:"user",content:t});
+  busy=true;snd.disabled=true;
+  var tm=addMsg("a t","...");
+  callApi(hist).then(function(reply){
+    tm.remove();addMsg("a",reply);
+    hist.push({role:"assistant",content:reply});
+  }).catch(function(e){
+    tm.remove();addMsg("e","Error: "+e.message);
+  }).then(function(){busy=false;snd.disabled=false;});
+}
+function callApi(history){
+  var sys="You are a strict reference assistant for Maine 10-144 CMR Chapter 241 Subsurface Wastewater Disposal Rules. Answer ONLY from the rule text provided. Cite the exact section number with every answer. If not in the text say: That is not addressed in Ch. 241 - consult a licensed designer or the Maine DEP.\n\nRULE TEXT:\n"+ruleText.substring(0,90000);
+  return fetch("https://api.anthropic.com/v1/messages",{
+    method:"POST",
+    headers:{
+      "content-type":"application/json",
+      "x-api-key":apiKey,
+      "anthropic-version":"2023-06-01",
+      "anthropic-dangerous-direct-browser-calls":"true"
+    },
+    body:JSON.stringify({model:"claude-haiku-4-5-20251001",max_tokens:1024,system:sys,messages:history.slice(-10)})
+  }).then(function(r){
+    if(!r.ok)return r.json().then(function(e){throw new Error(e.error&&e.error.message?e.error.message:"API error "+r.status);});
+    return r.json();
+  }).then(function(d){return d.content[0].text;});
+}
+function addMsg(cls,text){
+  var d=document.createElement("div");
+  d.className="m "+cls;d.textContent=text;
+  msgs.appendChild(d);msgs.scrollTop=msgs.scrollHeight;
+  return d;
+}
+function showChat(){setup.style.display="none";chat.style.display="flex";addMsg("s","Rule book loaded. Ask anything about Ch. 241.");}
+function showSetup(){chat.style.display="none";setup.style.display="block";hist=[];msgs.innerHTML="";}
+function showErr(m){err.textContent=m;err.style.display="block";sts.style.display="none";}
+function showOk(m){sts.textContent=m;sts.style.display="block";err.style.display="none";}
+function hideMsg(){err.style.display="none";sts.style.display="none";}
+init();
 </script>
 </body>
 </html>
