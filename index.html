@@ -1,149 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>Maine Ch. 241 Reference</title>
-<style>
-*{box-sizing:border-box;margin:0;padding:0}
-body{font-family:sans-serif;background:#f0f2f5;min-height:100vh;display:flex;flex-direction:column}
-#setup{max-width:480px;margin:40px auto;padding:24px;background:#fff;border-radius:12px;box-shadow:0 2px 16px rgba(0,0,0,.1)}
-h1{font-size:1.2rem;color:#1a1a2e;margin-bottom:8px}
-p{font-size:.85rem;color:#666;margin-bottom:16px}
-label{display:block;font-size:.8rem;font-weight:600;color:#444;margin:12px 0 4px}
-input{width:100%;padding:10px 12px;border:1px solid #ddd;border-radius:8px;font-size:.9rem;outline:none}
-input:focus{border-color:#4f46e5}
-#btn{margin-top:18px;width:100%;padding:12px;background:#4f46e5;color:#fff;border:none;border-radius:8px;font-size:.95rem;font-weight:600;cursor:pointer}
-#btn:hover{background:#4338ca}
-#err{color:#dc2626;font-size:.82rem;margin-top:8px;display:none}
-#status{color:#16a34a;font-size:.82rem;margin-top:8px;display:none}
-#chat{display:none;flex-direction:column;height:100vh;max-width:700px;margin:0 auto;width:100%}
-#hdr{background:#1a1a2e;color:#fff;padding:14px 16px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
-#hdr h2{font-size:.95rem}
-#hdr span{font-size:.75rem;color:#a5b4fc}
-#rst{background:transparent;border:1px solid #4f46e5;color:#a5b4fc;padding:5px 10px;border-radius:6px;font-size:.75rem;cursor:pointer}
-#msgs{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:12px}
-.m{max-width:85%;padding:12px 14px;border-radius:12px;font-size:.9rem;line-height:1.5}
-.u{background:#4f46e5;color:#fff;align-self:flex-end;border-bottom-right-radius:4px}
-.a{background:#fff;color:#1a1a2e;align-self:flex-start;border-bottom-left-radius:4px;box-shadow:0 1px 4px rgba(0,0,0,.08)}
-.s{background:#fef3c7;color:#92400e;font-size:.8rem;align-self:center;border-radius:8px;padding:8px 12px;text-align:center}
-.e{background:#fee2e2;color:#dc2626;font-size:.85rem;align-self:center;border-radius:8px;padding:8px 12px}
-.t{color:#9ca3af;font-style:italic}
-#inp{padding:12px 16px 20px;background:#fff;border-top:1px solid #e5e7eb;flex-shrink:0;display:flex;gap:8px;align-items:flex-end}
-#txt{flex:1;padding:10px 14px;border:1px solid #ddd;border-radius:24px;font-size:.9rem;resize:none;max-height:120px;outline:none;font-family:inherit}
-#txt:focus{border-color:#4f46e5}
-#snd{background:#4f46e5;color:#fff;border:none;border-radius:50%;width:40px;height:40px;cursor:pointer;font-size:1.1rem;flex-shrink:0}
-#snd:hover{background:#4338ca}
-#snd:disabled{background:#c4b5fd;cursor:not-allowed}
-</style>
-</head>
-<body>
-<div id="setup">
-<h1>Maine Ch. 241 Rule Reference</h1>
-<p>One-time setup. Saved locally in your browser.</p>
-<label>Anthropic API Key</label>
-<input type="password" id="key" placeholder="sk-ant-api03-..."/>
-<label>PDF URL</label>
-<input type="text" id="url" value="https://raw.githubusercontent.com/tylerinterstateseptic-afk/maine-septic-rule-book/main/ch241.pdf"/>
-<button id="btn">Save and Load Rule Book</button>
-<div id="err"></div>
-<div id="status"></div>
-</div>
-<div id="chat">
-<div id="hdr"><div><h2>Maine Ch. 241 Rule Reference</h2><span>Full rule book — text and tables</span></div><button id="rst">Setup</button></div>
-<div id="msgs"></div>
-<div id="inp"><textarea id="txt" rows="1" placeholder="Ask about Ch. 241..."></textarea><button id="snd">^</button></div>
-</div>
-<script>
-var KA="ch241k",KU="ch241u",KT="ch241txt",KI="ch241imgs";
-var apiKey="",ruleText="",tableImgs=[],hist=[],busy=false;
-function ge(id){return document.getElementById(id);}
-var setup=ge("setup"),chat=ge("chat"),keyIn=ge("key"),urlIn=ge("url");
-var btn=ge("btn"),err=ge("err"),sts=ge("status"),msgs=ge("msgs"),txt=ge("txt"),snd=ge("snd"),rst=ge("rst");
-function init(){
-  var k=localStorage.getItem(KA),u=localStorage.getItem(KU),t=localStorage.getItem(KT),imgs=localStorage.getItem(KI);
-  if(k)keyIn.value=k; if(u)urlIn.value=u;
-  if(k&&t){apiKey=k;ruleText=t;tableImgs=imgs?JSON.parse(imgs):[];showChat();}
-}
-btn.addEventListener("click",function(){
-  var k=keyIn.value.trim(),u=urlIn.value.trim();
-  hideMsg();
-  if(k.indexOf("sk-")!==0){showErr("API key must start with sk-");return;}
-  if(u.indexOf("http")!==0){showErr("Enter a valid URL");return;}
-  btn.disabled=true; showOk("Downloading PDF...");
-  var script=document.createElement("script");
-  script.src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js";
-  script.onload=function(){
-    pdfjsLib.GlobalWorkerOptions.workerSrc="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
-    fetch(u).then(function(r){if(!r.ok)throw new Error("Fetch failed:"+r.status);return r.arrayBuffer();}).then(function(buf){
-      showOk("Processing all "+0+" pages...");
-      return pdfjsLib.getDocument({data:buf}).promise.then(function(pdf){
-        var total=pdf.numPages; showOk("Extracting text from "+total+" pages...");
-        var textParts=[],i=1;
-        function nextText(){
-          if(i>total)return Promise.resolve(textParts.join("\n"));
-          return pdf.getPage(i).then(function(pg){return pg.getTextContent();}).then(function(c){
-            textParts.push(c.items.map(function(s){return s.str;}).join(" "));
-            if(i%20===0)showOk("Text: page "+i+"/"+total+"...");
-            i++;return nextText();
-          });
-        }
-        function renderTablePages(pdf,total){
-          var canvas=document.createElement("canvas");
-          var images=[],j=1;
-          function nextImg(){
-            if(j>total)return Promise.resolve(images);
-            return pdf.getPage(j).then(function(pg){
-              var vp=pg.getViewport({scale:0.6});
-              canvas.width=vp.width;canvas.height=vp.height;
-              var ctx=canvas.getContext("2d");
-              return pg.render({canvasContext:ctx,viewport:vp}).promise.then(function(){
-                images.push(canvas.toDataURL("image/jpeg",0.6).split(",")[1]);
-                showOk("Rendering page "+j+"/"+total+"...");
-                j++;return nextImg();
-              });
-            });
-          }
-          return nextImg();
-        }
-        return nextText().then(function(fullText){
-          showOk("Rendering table pages...");
-          return renderTablePages(pdf,total).then(function(imgs){
-            return {text:fullText,imgs:imgs};
-          });
-        });
-      });
-    }).then(function(result){
-      showOk("Saving...");
-      try{
-        localStorage.setItem(KA,k);localStorage.setItem(KU,u);
-        localStorage.setItem(KT,result.text);
-        localStorage.setItem(KI,JSON.stringify(result.imgs));
-      }catch(e){
-        localStorage.setItem(KT,result.text);
-        localStorage.setItem(KI,JSON.stringify([]));
-        showOk("Note: table images too large to cache, will use text only");
-      }
-      apiKey=k;ruleText=result.text;tableImgs=result.imgs;
-      showOk("Loaded! Opening chat...");setTimeout(showChat,600);
-    }).catch(function(e){showErr("Error: "+e.message);btn.disabled=false;});
-  };
-  script.onerror=function(){showErr("Failed to load PDF.js");btn.disabled=false;};
-  document.head.appendChild(script);
-});
-rst.addEventListener("click",function(){
-  localStorage.removeItem(KT);localStorage.removeItem(KI);
-  ruleText="";tableImgs=[];hist=[];
-  chat.style.display="none";setup.style.display="block";msgs.innerHTML="";
-});
-snd.addEventListener("click",send);
-txt.addEventListener("keydown",function(e){if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();send();}});
-txt.addEventListener("input",function(){txt.style.height="auto";txt.style.height=Math.min(txt.scrollHeight,120)+"px";});
-function send(){
-  var t=txt.value.trim();if(!t||busy)return;
-  addMsg("u",t);txt.value="";txt.style.height="auto";
-<html lang="en">
-<head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
   <title>Maine Ch. 241 Rule Reference</title>
@@ -381,7 +238,7 @@ function send(){
       });
     }).then(function(result) {
       if (!result.text || result.text.length < 500) {
-        throw new Error('PDF text too short — check the URL');
+        throw new Error('PDF text too short â check the URL');
       }
 
       progressBar.style.width = '98%';
@@ -478,7 +335,7 @@ function send(){
       + 'Answer ONLY using the rule text and page images provided. Do not use outside knowledge.\n'
       + 'For every answer, cite the specific section number (e.g., "Section 3(B)(4)") where the information comes from.\n'
       + 'If a question involves numerical values like setback distances, look carefully at the table images provided.\n'
-      + 'If the answer is not in the rule text, say: "That is not addressed in Ch. 241 — consult a licensed designer or the Maine DEP."\n\n'
+      + 'If the answer is not in the rule text, say: "That is not addressed in Ch. 241 â consult a licensed designer or the Maine DEP."\n\n'
       + 'RULE TEXT:\n'
       + ruleText.substring(0, 80000);
 
@@ -521,7 +378,7 @@ function send(){
       method: 'POST',
       headers: {
         'content-type': 'application/json',
-        'x-api-key': apiKey,
+        'x+api-key': apiKey,
         'anthropic-version': '2023-06-01'
       },
       body: body
