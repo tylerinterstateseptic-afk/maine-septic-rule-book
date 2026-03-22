@@ -1,445 +1,258 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
-  <title>Maine Ch. 241 Rule Reference</title>
-  <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f0f2f5; min-height: 100vh; display: flex; flex-direction: column; }
-
-    #setup-screen {
-      max-width: 480px; margin: 40px auto; padding: 24px;
-      background: #fff; border-radius: 12px;
-      box-shadow: 0 2px 16px rgba(0,0,0,0.1);
-    }
-    #setup-screen h1 { font-size: 1.2rem; color: #1a1a2e; margin-bottom: 6px; }
-    #setup-screen p { font-size: 0.85rem; color: #666; margin-bottom: 20px; }
-    label { display: block; font-size: 0.8rem; font-weight: 600; color: #444; margin-bottom: 4px; margin-top: 14px; }
-    input[type="text"], input[type="password"] {
-      width: 100%; padding: 10px 12px; border: 1px solid #ddd; border-radius: 8px;
-      font-size: 0.9rem; outline: none;
-    }
-    input:focus { border-color: #4f46e5; }
-    #save-btn {
-      margin-top: 20px; width: 100%; padding: 12px;
-      background: #4f46e5; color: #fff; border: none;
-      border-radius: 8px; font-size: 0.95rem; font-weight: 600;
-      cursor: pointer;
-    }
-    #save-btn:hover { background: #4338ca; }
-    #save-btn:disabled { background: #9ca3af; cursor: not-allowed; }
-    #setup-error { color: #dc2626; font-size: 0.82rem; margin-top: 10px; display: none; }
-    #setup-status { color: #16a34a; font-size: 0.82rem; margin-top: 10px; display: none; }
-    #progress-bar-wrap { margin-top: 10px; display: none; background: #e5e7eb; border-radius: 6px; height: 8px; }
-    #progress-bar { height: 8px; background: #4f46e5; border-radius: 6px; width: 0%; transition: width 0.2s; }
-
-    #chat-screen { display: none; flex-direction: column; height: 100vh; max-width: 700px; margin: 0 auto; width: 100%; }
-
-    #chat-header {
-      background: #1a1a2e; color: #fff; padding: 14px 16px;
-      display: flex; align-items: center; justify-content: space-between;
-      flex-shrink: 0;
-    }
-    #chat-header h2 { font-size: 0.95rem; font-weight: 600; }
-    #chat-header span { font-size: 0.75rem; color: #a5b4fc; }
-    #reset-btn {
-      background: transparent; border: 1px solid #4f46e5; color: #a5b4fc;
-      padding: 5px 10px; border-radius: 6px; font-size: 0.75rem; cursor: pointer;
-    }
-    #reset-btn:hover { background: #4f46e5; color: #fff; }
-
-    #messages {
-      flex: 1; overflow-y: auto; padding: 16px;
-      display: flex; flex-direction: column; gap: 12px;
-    }
-    .msg { max-width: 85%; padding: 12px 14px; border-radius: 12px; font-size: 0.9rem; line-height: 1.5; white-space: pre-wrap; }
-    .msg.user { background: #4f46e5; color: #fff; align-self: flex-end; border-bottom-right-radius: 4px; }
-    .msg.assistant { background: #fff; color: #1a1a2e; align-self: flex-start; border-bottom-left-radius: 4px; box-shadow: 0 1px 4px rgba(0,0,0,0.08); }
-    .msg.system { background: #fef3c7; color: #92400e; font-size: 0.8rem; align-self: center; text-align: center; border-radius: 8px; padding: 8px 12px; }
-    .msg.error { background: #fee2e2; color: #dc2626; font-size: 0.85rem; align-self: center; }
-    .typing { color: #9ca3af; font-style: italic; }
-
-    #input-area {
-      padding: 12px 16px 20px;
-      background: #fff;
-      border-top: 1px solid #e5e7eb;
-      flex-shrink: 0;
-      display: flex; gap: 8px; align-items: flex-end;
-    }
-    #user-input {
-      flex: 1; padding: 10px 14px; border: 1px solid #ddd;
-      border-radius: 24px; font-size: 0.9rem; resize: none;
-      max-height: 120px; outline: none; font-family: inherit;
-    }
-    #user-input:focus { border-color: #4f46e5; }
-    #send-btn {
-      background: #4f46e5; color: #fff; border: none;
-      border-radius: 50%; width: 40px; height: 40px;
-      cursor: pointer; font-size: 1.1rem; flex-shrink: 0;
-      display: flex; align-items: center; justify-content: center;
-    }
-    #send-btn:hover { background: #4338ca; }
-    #send-btn:disabled { background: #c4b5fd; cursor: not-allowed; }
-  </style>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Maine Ch. 241 Rule Reference</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f0f2f5; height: 100vh; display: flex; flex-direction: column; }
+.header { background: #1a1a2e; color: white; padding: 16px 20px; display: flex; justify-content: space-between; align-items: center; }
+.header h1 { font-size: 18px; font-weight: 700; }
+.header p { font-size: 12px; color: #a0a8c0; margin-top: 2px; }
+.btn { background: transparent; border: 1px solid rgba(255,255,255,0.3); color: white; padding: 8px 16px; border-radius: 8px; cursor: pointer; font-size: 14px; }
+.btn-primary { background: #4f46e5; border: none; color: white; padding: 10px 20px; border-radius: 10px; cursor: pointer; font-size: 14px; font-weight: 600; }
+.messages { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 12px; }
+.msg { max-width: 85%; padding: 12px 16px; border-radius: 18px; font-size: 14px; line-height: 1.6; }
+.msg-system { background: #fef3c7; color: #92400e; align-self: center; text-align: center; border-radius: 10px; font-size: 13px; max-width: 95%; }
+.msg-user { background: #4f46e5; color: white; align-self: flex-end; border-radius: 18px 18px 4px 18px; }
+.msg-ai { background: white; color: #1f2937; align-self: flex-start; border-radius: 18px 18px 18px 4px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); white-space: pre-wrap; }
+.msg-error { background: #fee2e2; color: #991b1b; align-self: center; }
+.input-area { padding: 16px 20px; background: white; border-top: 1px solid #e5e7eb; display: flex; gap: 10px; }
+.input-area input { flex: 1; padding: 12px 16px; border: 1px solid #d1d5db; border-radius: 24px; font-size: 15px; outline: none; }
+.input-area input:focus { border-color: #4f46e5; }
+.send-btn { background: #4f46e5; border: none; color: white; width: 44px; height: 44px; border-radius: 50%; cursor: pointer; font-size: 20px; display: flex; align-items: center; justify-content: center; }
+.modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 100; align-items: center; justify-content: center; }
+.modal.open { display: flex; }
+.modal-box { background: white; border-radius: 16px; padding: 28px; width: 90%; max-width: 440px; }
+.modal-box h2 { font-size: 18px; margin-bottom: 16px; color: #1f2937; }
+.modal-box label { display: block; font-size: 13px; color: #6b7280; margin-bottom: 4px; margin-top: 12px; }
+.modal-box input { width: 100%; border: 1px solid #d1d5db; border-radius: 8px; padding: 10px 12px; font-size: 14px; }
+.modal-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px; }
+.btn-cancel { background: #f3f4f6; border: none; color: #374151; padding: 10px 16px; border-radius: 8px; cursor: pointer; }
+#setupStatus { margin-top: 12px; font-size: 13px; color: #6b7280; min-height: 20px; }
+</style>
 </head>
 <body>
-
-<!-- SETUP SCREEN -->
-<div id="setup-screen">
-  <h1>Maine Ch. 241 Rule Reference</h1>
-  <p>One-time setup. Your key and PDF are saved locally in this browser only.</p>
-
-  <label for="api-key-input">Anthropic API Key</label>
-  <input type="password" id="api-key-input" placeholder="sk-ant-api03-..." autocomplete="off" />
-
-  <label for="pdf-url-input">PDF URL (raw GitHub link)</label>
-  <input type="text" id="pdf-url-input" placeholder="https://raw.githubusercontent.com/..." />
-
-  <button id="save-btn">Save &amp; Load Rule Book</button>
-  <div id="progress-bar-wrap"><div id="progress-bar"></div></div>
-  <div id="setup-error"></div>
-  <div id="setup-status"></div>
+<div class="header">
+  <div>
+    <h1>Maine Ch. 241 Rule Reference</h1>
+    <p>Answers grounded strictly in the rule text</p>
+  </div>
+  <button class="btn" onclick="openSetup()">Setup</button>
 </div>
-
-<!-- CHAT SCREEN -->
-<div id="chat-screen">
-  <div id="chat-header">
-    <div>
-      <h2>Maine Ch. 241 Rule Reference</h2>
-      <span>Answers grounded strictly in the rule text</span>
+<div class="messages" id="msgs"></div>
+<div class="input-area">
+  <input type="text" id="q" placeholder="Ask a question about Ch. 241..." onkeydown="if(event.key==='Enter')send()">
+  <button class="send-btn" onclick="send()">&#8593;</button>
+</div>
+<div class="modal" id="modal">
+  <div class="modal-box">
+    <h2>Setup</h2>
+    <label>Anthropic API Key</label>
+    <input type="password" id="keyInput" placeholder="sk-ant-...">
+    <label>PDF URL</label>
+    <input type="text" id="urlInput" placeholder="https://...ch241.pdf">
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closeSetup()">Cancel</button>
+      <button class="btn-primary" onclick="runSetup()">Load Rule Book</button>
     </div>
-    <button id="reset-btn" title="Change API key or PDF URL">Setup</button>
-  </div>
-  <div id="messages"></div>
-  <div id="input-area">
-    <textarea id="user-input" rows="1" placeholder="Ask a question about Ch. 241..."></textarea>
-    <button id="send-btn">&#8593;</button>
+    <div id="setupStatus"></div>
   </div>
 </div>
-
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <script>
-  var PROXY_URL    = 'https://ch241-proxy.tyler-interstateseptic.workers.dev';
-  var KEY_API      = 'ch241k';
-  var KEY_URL      = 'ch241u';
-  var KEY_TEXT     = 'ch241txt';
-  var KEY_IMGS     = 'ch241imgs';
-  var MAX_IMGS     = 8;
-  var IMG_SCALE    = 0.6;
-  var IMG_QUALITY  = 0.6;
+pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+var PROXY = 'https://ch241-proxy.tyler-interstateseptic.workers.dev';
 
-  var apiKey = '';
-  var ruleText = '';
-  var pageImages = [];
-  var conversationHistory = [];
-  var isLoading = false;
+function addMsg(text, cls) {
+  var d = document.createElement('div');
+  d.className = 'msg ' + cls;
+  d.textContent = text;
+  document.getElementById('msgs').appendChild(d);
+  d.scrollIntoView({behavior:'smooth'});
+  return d;
+}
 
-  var setupScreen  = document.getElementById('setup-screen');
-  var chatScreen   = document.getElementById('chat-screen');
-  var apiKeyInput  = document.getElementById('api-key-input');
-  var pdfUrlInput  = document.getElementById('pdf-url-input');
-  var saveBtn      = document.getElementById('save-btn');
-  var setupError   = document.getElementById('setup-error');
-  var setupStatus  = document.getElementById('setup-status');
-  var progressWrap = document.getElementById('progress-bar-wrap');
-  var progressBar  = document.getElementById('progress-bar');
-  var messagesDiv  = document.getElementById('messages');
-  var userInput    = document.getElementById('user-input');
-  var sendBtn      = document.getElementById('send-btn');
-  var resetBtn     = document.getElementById('reset-btn');
+function openSetup() {
+  document.getElementById('keyInput').value = localStorage.getItem('ch241k') || '';
+  document.getElementById('urlInput').value = localStorage.getItem('ch241u') || '';
+  document.getElementById('modal').classList.add('open');
+}
 
-  function init() {
-    var savedKey   = localStorage.getItem(KEY_API);
-    var savedText  = localStorage.getItem(KEY_TEXT);
-    var savedImgs  = localStorage.getItem(KEY_IMGS);
+function closeSetup() {
+  document.getElementById('modal').classList.remove('open');
+}
 
-    if (savedKey) { apiKeyInput.value = savedKey; }
-    var savedUrl = localStorage.getItem(KEY_URL);
-    if (savedUrl) { pdfUrlInput.value = savedUrl; }
-
-    if (savedKey && savedText) {
-      apiKey    = savedKey;
-      ruleText  = savedText;
-      if (savedImgs) {
-        try { pageImages = JSON.parse(savedImgs); } catch(e) { pageImages = []; }
+function runSetup() {
+  var key = document.getElementById('keyInput').value.trim();
+  var url = document.getElementById('urlInput').value.trim();
+  var status = document.getElementById('setupStatus');
+  if (!key || key.indexOf('sk-') !== 0) { status.textContent = 'Enter a valid API key.'; return; }
+  if (!url) { status.textContent = 'Enter the PDF URL.'; return; }
+  localStorage.setItem('ch241k', key);
+  localStorage.setItem('ch241u', url);
+  localStorage.removeItem('ch241imgs');
+  status.textContent = 'Fetching PDF...';
+  fetch(url).then(function(r) { return r.arrayBuffer(); }).then(function(buf) {
+    status.textContent = 'Extracting text from all pages...';
+    return pdfjsLib.getDocument({data: buf}).promise.then(function(pdf) {
+      var total = pdf.numPages;
+      var pageTexts = [];
+      var chain = Promise.resolve();
+      for (var p = 1; p <= total; p++) {
+        (function(pg) {
+          chain = chain.then(function() {
+            status.textContent = 'Reading page ' + pg + ' of ' + total + '...';
+            return pdf.getPage(pg).then(function(page) {
+              return page.getTextContent().then(function(tc) {
+                var t = tc.items.map(function(i) { return i.str; }).join(' ');
+                pageTexts.push(t);
+              });
+            });
+          });
+        })(p);
       }
-      showChat();
+      return chain.then(function() {
+        var full = pageTexts.join('\n');
+        try {
+          localStorage.setItem('ch241pages', JSON.stringify(pageTexts));
+          localStorage.setItem('ch241txt', full.substring(0, 120000));
+        } catch(e) {
+          var half = Math.floor(pageTexts.length / 2);
+          localStorage.setItem('ch241pages', JSON.stringify(pageTexts));
+          localStorage.setItem('ch241txt', full.substring(0, 80000));
+        }
+        status.textContent = 'Done! ' + total + ' pages indexed.';
+        closeSetup();
+        document.getElementById('msgs').innerHTML = '';
+        addMsg('Rule book loaded (' + total + ' pages indexed). Ask any question about Ch. 241.', 'msg-system');
+      });
+    });
+  }).catch(function(e) {
+    status.textContent = 'Error: ' + e.message;
+  });
+}
+
+function findRelevantPages(question, pageTexts) {
+  var q = question.toLowerCase();
+  var words = q.split(/\s+/).filter(function(w) { return w.length > 3; });
+  var scores = pageTexts.map(function(pt, idx) {
+    var text = pt.toLowerCase();
+    var score = 0;
+    for (var j = 0; j < words.length; j++) {
+      var w = words[j];
+      var pos = -1;
+      while ((pos = text.indexOf(w, pos + 1)) >= 0) score++;
+    }
+    return { idx: idx, score: score };
+  });
+  scores.sort(function(a, b) { return b.score - a.score; });
+  var selected = [];
+  for (var i = 0; i < scores.length && selected.length < 15; i++) {
+    if (scores[i].score > 0) selected.push(scores[i].idx);
+  }
+  if (selected.length < 5) {
+    var step = Math.max(Math.floor(pageTexts.length / 12), 1);
+    for (var k = 0; k < pageTexts.length && selected.length < 12; k += step) {
+      if (selected.indexOf(k) < 0) selected.push(k);
     }
   }
+  selected.sort(function(a, b) { return a - b; });
+  return selected.slice(0, 16);
+}
 
-  saveBtn.addEventListener('click', function() {
-    var key = apiKeyInput.value.trim();
-    var url = pdfUrlInput.value.trim();
+function renderPage(pdfDoc, pageNum) {
+  return pdfDoc.getPage(pageNum).then(function(page) {
+    var vp = page.getViewport({scale: 1.3});
+    var canvas = document.createElement('canvas');
+    canvas.width = vp.width;
+    canvas.height = vp.height;
+    return page.render({canvasContext: canvas.getContext('2d'), viewport: vp}).promise.then(function() {
+      return canvas.toDataURL('image/jpeg', 0.7);
+    });
+  });
+}
 
-    hideSetupMessages();
-
-    if (!key || key.indexOf('sk-') !== 0) {
-      showSetupError('API key must start with sk-');
-      return;
-    }
-    if (!url || url.indexOf('http') !== 0) {
-      showSetupError('Enter a valid PDF URL starting with http');
-      return;
-    }
-
-    saveBtn.disabled = true;
-    progressWrap.style.display = 'block';
-    progressBar.style.width = '0%';
-    showSetupStatus('Starting...');
-
-    loadPdfJs().then(function() {
-      showSetupStatus('Fetching PDF...');
-      progressBar.style.width = '5%';
-      return fetch(url);
-    }).then(function(res) {
-      if (!res.ok) { throw new Error('Could not fetch PDF (HTTP ' + res.status + ')'); }
-      showSetupStatus('Downloading PDF...');
-      progressBar.style.width = '15%';
-      return res.arrayBuffer();
-    }).then(function(buf) {
-      showSetupStatus('Loading PDF pages...');
-      progressBar.style.width = '20%';
-      return window.pdfjsLib.getDocument({ data: buf }).promise;
-    }).then(function(pdf) {
-      var numPages = pdf.numPages;
-      var fullText = '';
+function send() {
+  var q = document.getElementById('q').value.trim();
+  if (!q) return;
+  var key = localStorage.getItem('ch241k');
+  var pdfUrl = localStorage.getItem('ch241u');
+  var pagesJson = localStorage.getItem('ch241pages');
+  var fullText = localStorage.getItem('ch241txt') || '';
+  if (!key) { addMsg('Please run Setup first.', 'msg-error'); return; }
+  if (!pdfUrl || !pagesJson) { addMsg('Please run Setup to load the rule book.', 'msg-error'); return; }
+  document.getElementById('q').value = '';
+  addMsg(q, 'msg-user');
+  var thinking = addMsg('Finding relevant pages...', 'msg-system');
+  var pageTexts;
+  try { pageTexts = JSON.parse(pagesJson); } catch(e) {
+    thinking.remove();
+    addMsg('Stored data corrupted. Please re-run Setup.', 'msg-error');
+    return;
+  }
+  var indices = findRelevantPages(q, pageTexts);
+  var pageNums = indices.map(function(i) { return i + 1; });
+  thinking.textContent = 'Rendering pages: ' + pageNums.join(', ') + '...';
+  fetch(pdfUrl).then(function(r) { return r.arrayBuffer(); }).then(function(buf) {
+    return pdfjsLib.getDocument({data: buf}).promise.then(function(pdfDoc) {
       var images = [];
-      var canvas = document.createElement('canvas');
-      var ctx = canvas.getContext('2d');
-
-      function processPage(i) {
-        if (i > numPages) {
-          return Promise.resolve();
-        }
-        var pct = Math.round(20 + (i / numPages) * 75);
-        progressBar.style.width = pct + '%';
-        showSetupStatus('Processing page ' + i + ' of ' + numPages + '...');
-
-        return pdf.getPage(i).then(function(page) {
-          return page.getTextContent().then(function(content) {
-            var pageText = content.items.map(function(s) { return s.str; }).join(' ');
-            fullText += pageText + '\n';
-
-            var viewport = page.getViewport({ scale: IMG_SCALE });
-            canvas.width  = viewport.width;
-            canvas.height = viewport.height;
-            return page.render({ canvasContext: ctx, viewport: viewport }).promise;
-          }).then(function() {
-            var dataUrl = canvas.toDataURL('image/jpeg', IMG_QUALITY);
-            var b64 = dataUrl.split(',')[1];
-            images.push(b64);
-            return processPage(i + 1);
+      var chain = Promise.resolve();
+      pageNums.forEach(function(pn) {
+        chain = chain.then(function() {
+          thinking.textContent = 'Rendering page ' + pn + '...';
+          return renderPage(pdfDoc, pn).then(function(dataUrl) {
+            images.push({num: pn, data: dataUrl});
           });
         });
-      }
-
-      return processPage(1).then(function() {
-        return { text: fullText, images: images };
       });
-    }).then(function(result) {
-      if (!result.text || result.text.length < 500) {
-        throw new Error('PDF text too short â check the URL');
-      }
-
-      progressBar.style.width = '98%';
-      showSetupStatus('Saving to browser storage...');
-
-      localStorage.setItem(KEY_API, key);
-      localStorage.setItem(KEY_URL, url);
-      localStorage.setItem(KEY_TEXT, result.text);
-
-      var imgSlice = result.images.slice(0, MAX_IMGS);
-      try {
-        localStorage.setItem(KEY_IMGS, JSON.stringify(imgSlice));
-      } catch(e) {
-        try {
-          localStorage.setItem(KEY_IMGS, JSON.stringify(result.images.slice(0, 5)));
-        } catch(e2) {
-          localStorage.setItem(KEY_IMGS, '[]');
-        }
-      }
-
-      apiKey    = key;
-      ruleText  = result.text;
-      pageImages = imgSlice;
-
-      progressBar.style.width = '100%';
-      showSetupStatus('Loaded! Opening chat...');
-      setTimeout(showChat, 800);
-    }).catch(function(e) {
-      showSetupError('Error: ' + e.message);
-      saveBtn.disabled = false;
-      progressWrap.style.display = 'none';
+      return chain.then(function() { return images; });
     });
-  });
-
-  resetBtn.addEventListener('click', function() {
-    localStorage.removeItem(KEY_TEXT);
-    localStorage.removeItem(KEY_IMGS);
-    showSetup();
-  });
-
-  function loadPdfJs() {
-    return new Promise(function(resolve, reject) {
-      if (window.pdfjsLib) { resolve(); return; }
-      var script = document.createElement('script');
-      script.src = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js';
-      script.onload = function() {
-        window.pdfjsLib.GlobalWorkerOptions.workerSrc =
-          'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
-        resolve();
-      };
-      script.onerror = function() { reject(new Error('Failed to load PDF.js')); };
-      document.head.appendChild(script);
+  }).then(function(images) {
+    thinking.textContent = 'Asking Claude...';
+    var system = 'You are an expert on Maine 10-144 CMR Chapter 241 Subsurface Wastewater Disposal Rules. ' +
+      'Answer ONLY from the rule book. Always cite section numbers. ' +
+      'Give specific numbers, distances, and requirements. Never tell the user to look it up themselves. ' +
+      'Full rule text:\n\n' + fullText;
+    var content = [];
+    content.push({type:'text', text:'Question: ' + q + '\n\nI am sending page images from Ch. 241 (pages ' + pageNums.join(', ') + '), selected as most relevant. Read all tables and text carefully and give a specific, detailed answer with actual numbers and distances.'});
+    images.forEach(function(img) {
+      content.push({type:'text', text:'--- Page ' + img.num + ' ---'});
+      content.push({type:'image', source:{type:'base64', media_type:'image/jpeg', data: img.data.split(',')[1]}});
     });
-  }
-
-  sendBtn.addEventListener('click', sendMessage);
-  userInput.addEventListener('keydown', function(e) {
-    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); }
-  });
-  userInput.addEventListener('input', function() {
-    userInput.style.height = 'auto';
-    userInput.style.height = Math.min(userInput.scrollHeight, 120) + 'px';
-  });
-
-  function sendMessage() {
-    var text = userInput.value.trim();
-    if (!text || isLoading) { return; }
-
-    appendMessage('user', text);
-    userInput.value = '';
-    userInput.style.height = 'auto';
-    conversationHistory.push({ role: 'user', content: text });
-
-    isLoading = true;
-    sendBtn.disabled = true;
-    var typingMsg = appendMessage('assistant', 'Thinking...', 'typing');
-
-    callClaude(conversationHistory).then(function(reply) {
-      typingMsg.remove();
-      appendMessage('assistant', reply);
-      conversationHistory.push({ role: 'assistant', content: reply });
-      isLoading = false;
-      sendBtn.disabled = false;
-    }).catch(function(e) {
-      typingMsg.remove();
-      appendMessage('error', 'Error: ' + e.message);
-      isLoading = false;
-      sendBtn.disabled = false;
-    });
-  }
-
-  function callClaude(history) {
-    var systemPrompt = 'You are a strict reference assistant for Maine\'s 10-144 CMR Chapter 241 Subsurface Wastewater Disposal Rules.\n\n'
-      + 'Answer ONLY using the rule text and page images provided. Do not use outside knowledge.\n'
-      + 'For every answer, cite the specific section number (e.g., "Section 3(B)(4)") where the information comes from.\n'
-      + 'If a question involves numerical values like setback distances, look carefully at the table images provided.\n'
-      + 'If the answer is not in the rule text, say: "That is not addressed in Ch. 241 â consult a licensed designer or the Maine DEP."\n\n'
-      + 'RULE TEXT:\n'
-      + ruleText.substring(0, 80000);
-
-    var messages = history.slice(-10).map(function(m, idx) { return m; });
-
-    if (pageImages && pageImages.length > 0) {
-      var augmented = [];
-      var firstUserDone = false;
-      for (var i = 0; i < messages.length; i++) {
-        var m = messages[i];
-        if (m.role === 'user' && !firstUserDone) {
-          firstUserDone = true;
-          var content = [{ type: 'text', text: m.content }];
-          for (var j = 0; j < pageImages.length && j < MAX_IMGS; j++) {
-            content.push({
-              type: 'image',
-              source: {
-                type: 'base64',
-                media_type: 'image/jpeg',
-                data: pageImages[j]
-              }
-            });
-          }
-          augmented.push({ role: 'user', content: content });
-        } else {
-          augmented.push(m);
-        }
-      }
-      messages = augmented;
-    }
-
-    var body = JSON.stringify({
-      model: 'claude-haiku-4-5-20251001',
-      max_tokens: 1024,
-      system: systemPrompt,
-      messages: messages
-    });
-
-    return fetch(PROXY_URL, {
+    return fetch(PROXY, {
       method: 'POST',
-      headers: {
-        'content-type': 'application/json',
-        'x-api-key': apiKey,
-        'anthropic-version': '2023-06-01'
-      },
-      body: body
-    }).then(function(res) {
-      return res.json().then(function(data) {
-        if (!res.ok) {
-          throw new Error(data.error ? data.error.message : ('API error ' + res.status));
-        }
-        if (!data.content || !data.content[0]) {
-          throw new Error('Empty response from API');
-        }
-        return data.content[0].text;
-      });
+      headers: {'Content-Type':'application/json', 'x-api-key': key, 'anthropic-version':'2023-06-01'},
+      body: JSON.stringify({model:'claude-haiku-4-5-20251001', max_tokens:2048, system: system, messages:[{role:'user', content: content}]})
+    }).then(function(r) { return r.json(); }).then(function(data) {
+      thinking.remove();
+      if (data.error) { addMsg('API Error: ' + data.error.message, 'msg-error'); }
+      else if (data.content && data.content[0]) { addMsg(data.content[0].text, 'msg-ai'); }
+      else { addMsg('Unexpected response.', 'msg-error'); }
     });
-  }
+  }).catch(function(e) {
+    thinking.remove();
+    addMsg('Error: ' + e.message, 'msg-error');
+  });
+}
 
-  function appendMessage(role, text, extra) {
-    var div = document.createElement('div');
-    div.className = 'msg ' + role + (extra ? ' ' + extra : '');
-    div.textContent = text;
-    messagesDiv.appendChild(div);
-    messagesDiv.scrollTop = messagesDiv.scrollHeight;
-    return div;
+(function init() {
+  var key = localStorage.getItem('ch241k');
+  var pages = localStorage.getItem('ch241pages');
+  if (!key || !pages) {
+    addMsg('Welcome! Tap Setup to enter your API key and load the rule book.', 'msg-system');
+    openSetup();
+  } else {
+    try {
+      var pt = JSON.parse(pages);
+      addMsg('Rule book loaded (' + pt.length + ' pages indexed). Ask any question about Ch. 241.', 'msg-system');
+    } catch(e) {
+      addMsg('Error reading stored data. Please re-run Setup.', 'msg-system');
+      openSetup();
+    }
   }
-
-  function showChat() {
-    setupScreen.style.display = 'none';
-    chatScreen.style.display = 'flex';
-    messagesDiv.innerHTML = '';
-    var imgCount = pageImages ? pageImages.length : 0;
-    appendMessage('system', 'Rule book loaded (' + imgCount + ' page images). Ask any question about Ch. 241.');
-    userInput.focus();
-  }
-
-  function showSetup() {
-    chatScreen.style.display = 'none';
-    setupScreen.style.display = 'block';
-    conversationHistory = [];
-    messagesDiv.innerHTML = '';
-    saveBtn.disabled = false;
-    progressWrap.style.display = 'none';
-  }
-
-  function showSetupError(msg) {
-    setupError.textContent = msg;
-    setupError.style.display = 'block';
-    setupStatus.style.display = 'none';
-  }
-
-  function showSetupStatus(msg) {
-    setupStatus.textContent = msg;
-    setupStatus.style.display = 'block';
-    setupError.style.display = 'none';
-  }
-
-  function hideSetupMessages() {
-    setupError.style.display = 'none';
-    setupStatus.style.display = 'none';
-  }
-
-  init();
+})();
 </script>
 </body>
 </html>
