@@ -640,7 +640,7 @@ RULES:
 
     errEl.style.display = 'none';
 
-    if (!key.startsWith('sk-ant-')) {
+    if (!key.startsWith('sk-')) {
       showError('API key should start with sk-ant-');
       return;
     }
@@ -685,7 +685,7 @@ RULES:
     // User can paste a base64 PDF they already have — or we skip to chat
     // if they uploaded via the session
     const key = document.getElementById('api-key-input').value.trim();
-    if (!key.startsWith('sk-ant-')) {
+    if (!key.startsWith('sk-')) {
       showError('Enter a valid API key first (sk-ant-...)');
       return;
     }
