@@ -231,8 +231,7 @@ function runSetup() {
         })(p);
       }
       return chain.then(function() {
-        var full = pageTexts.join('
-');
+        var full = pageTexts.join('\n');
         try { localStorage.setItem('ch241pages', JSON.stringify(pageTexts)); } catch(e) {}
         try { localStorage.setItem('ch241txt', full.substring(0, 120000)); } catch(e) { localStorage.setItem('ch241txt', full.substring(0, 80000)); }
         status.textContent = 'Done! ' + total + ' pages indexed.';
@@ -246,7 +245,7 @@ function runSetup() {
 
 function findRelevantPages(question, pageTexts) {
   var q = question.toLowerCase();
-  var words = q.split(/s+/).filter(function(w){ return w.length > 3; });
+  var words = q.split(/\s+/).filter(function(w){ return w.length > 3; });
   var scores = pageTexts.map(function(pt, idx) {
     var text = pt.toLowerCase();
     var score = 0;
@@ -318,12 +317,8 @@ function send() {
     var system = 'You are an expert on Maine 10-144 CMR Chapter 241 Subsurface Wastewater Disposal Rules. ' +
       'Answer ONLY from the rule book. Always cite section numbers. ' +
       'Give specific numbers, distances, and requirements. Never tell the user to look it up themselves - lay it all out. ' +
-      'Full rule text:
-
-' + fullText;
-    var content = [{type:'text', text:'Question: ' + q + '
-
-Page images from Ch. 241 (pages ' + pageNums.join(', ') + ') are attached - selected as most relevant. Read all tables carefully and give a specific, detailed answer with actual numbers and distances.'}];
+      'Full rule text:\n\n' + fullText;
+    var content = [{type:'text', text:'Question: ' + q + '\n\nPage images from Ch. 241 (pages ' + pageNums.join(', ') + ') are attached - selected as most relevant. Read all tables carefully and give a specific, detailed answer with actual numbers and distances.'}];
     images.forEach(function(img) {
       content.push({type:'text', text:'--- Page ' + img.num + ' ---'});
       content.push({type:'image', source:{type:'base64', media_type:'image/jpeg', data: img.data.split(',')[1]}});
