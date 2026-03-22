@@ -50,21 +50,21 @@ input:focus{border-color:#4f46e5}
 <div id="status"></div>
 </div>
 <div id="chat">
-<div id="hdr"><div><h2>Maine Ch. 241 Rule Reference</h2><span>Answers from the rule text only</span></div><button id="rst">Setup</button></div>
+<div id="hdr"><div><h2>Maine Ch. 241 Rule Reference</h2><span>Answers from the full rule book including tables</span></div><button id="rst">Setup</button></div>
 <div id="msgs"></div>
 <div id="inp"><textarea id="txt" rows="1" placeholder="Ask about Ch. 241..."></textarea><button id="snd">^</button></div>
 </div>
 <script>
-var KA="ch241k",KU="ch241u",KT="ch241t";
-var apiKey="",ruleText="",hist=[],busy=false;
+var KA="ch241k",KU="ch241u",KB="ch241b64";
+var apiKey="",pdfB64="",hist=[],busy=false;
 function ge(id){return document.getElementById(id);}
 var setup=ge("setup"),chat=ge("chat"),keyIn=ge("key"),urlIn=ge("url");
 var btn=ge("btn"),err=ge("err"),sts=ge("status"),msgs=ge("msgs"),txt=ge("txt"),snd=ge("snd"),rst=ge("rst");
 function init(){
-  var k=localStorage.getItem(KA),u=localStorage.getItem(KU),t=localStorage.getItem(KT);
+  var k=localStorage.getItem(KA),u=localStorage.getItem(KU),b=localStorage.getItem(KB);
   if(k)keyIn.value=k;
   if(u)urlIn.value=u;
-  if(k&&t){apiKey=k;ruleText=t;showChat();}
+  if(k&&b){apiKey=k;pdfB64=b;showChat();}
 }
 btn.addEventListener("click",function(){
   var k=keyIn.value.trim(),u=urlIn.value.trim();
@@ -73,53 +73,32 @@ btn.addEventListener("click",function(){
   if(u.indexOf("http")!==0){showErr("Enter a valid URL");return;}
   btn.disabled=true;
   showOk("Downloading PDF...");
-  getPDF(u).then(function(text){
-    if(!text||text.length<500){showErr("PDF text too short");btn.disabled=false;return;}
-    localStorage.setItem(KA,k);localStorage.setItem(KU,u);localStorage.setItem(KT,text);
-    apiKey=k;ruleText=text;
+  fetch(u).then(function(r){
+    if(!r.ok)throw new Error("Fetch failed: "+r.status);
+    return r.arrayBuffer();
+  }).then(function(buf){
+    showOk("Processing PDF...");
+    var bytes=new Uint8Array(buf);
+    var binary="";
+    for(var i=0;i<bytes.byteLength;i++){binary+=String.fromCharCode(bytes[i]);}
+    var b64=btoa(binary);
+    try{
+      localStorage.setItem(KA,k);
+      localStorage.setItem(KU,u);
+      localStorage.setItem(KB,b64);
+    }catch(e){
+      showErr("Storage full - try clearing browser data");btn.disabled=false;return;
+    }
+    apiKey=k;pdfB64=b64;
     showOk("Loaded! Opening chat...");
     setTimeout(showChat,800);
   }).catch(function(e){showErr("Error: "+e.message);btn.disabled=false;});
 });
-rst.addEventListener("click",function(){localStorage.removeItem(KT);showSetup();});
-function getPDF(url){
-  showOk("Fetching PDF...");
-  return fetch(url).then(function(r){
-    if(!r.ok)throw new Error("Fetch failed: "+r.status);
-    return r.arrayBuffer();
-  }).then(function(buf){
-    showOk("Extracting text...");
-    return loadPdfJs().then(function(lib){
-      return lib.getDocument({data:buf}).promise;
-    }).then(function(pdf){
-      var pages=pdf.numPages,i=1,all="";
-      function nextPage(){
-        if(i>pages)return Promise.resolve(all);
-        return pdf.getPage(i).then(function(pg){
-          return pg.getTextContent();
-        }).then(function(c){
-          all+=c.items.map(function(s){return s.str;}).join(" ")+"\n";
-          if(i%10===0)showOk("Page "+i+" of "+pages+"...");
-          i++;return nextPage();
-        });
-      }
-      return nextPage();
-    });
-  });
-}
-function loadPdfJs(){
-  return new Promise(function(resolve,reject){
-    if(window.pdfjsLib){resolve(window.pdfjsLib);return;}
-    var s=document.createElement("script");
-    s.src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js";
-    s.onload=function(){
-      window.pdfjsLib.GlobalWorkerOptions.workerSrc="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
-      resolve(window.pdfjsLib);
-    };
-    s.onerror=function(){reject(new Error("Failed to load PDF.js"));};
-    document.head.appendChild(s);
-  });
-}
+rst.addEventListener("click",function(){
+  localStorage.removeItem(KB);
+  pdfB64="";hist=[];
+  chat.style.display="none";setup.style.display="block";msgs.innerHTML="";
+});
 snd.addEventListener("click",send);
 txt.addEventListener("keydown",function(e){if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();send();}});
 txt.addEventListener("input",function(){txt.style.height="auto";txt.style.height=Math.min(txt.scrollHeight,120)+"px";});
@@ -127,26 +106,34 @@ function send(){
   var t=txt.value.trim();
   if(!t||busy)return;
   addMsg("u",t);txt.value="";txt.style.height="auto";
-  hist.push({role:"user",content:t});
+  hist.push(t);
   busy=true;snd.disabled=true;
   var tm=addMsg("a t","...");
   callApi(hist).then(function(reply){
     tm.remove();addMsg("a",reply);
-    hist.push({role:"assistant",content:reply});
+    hist.push(reply);
   }).catch(function(e){
     tm.remove();addMsg("e","Error: "+e.message);
   }).then(function(){busy=false;snd.disabled=false;});
 }
 function callApi(history){
-  var sys="You are a strict reference assistant for Maine 10-144 CMR Chapter 241 Subsurface Wastewater Disposal Rules. Answer ONLY from the rule text provided. Cite the exact section number with every answer. If not in the text say: That is not addressed in Ch. 241 - consult a licensed designer or the Maine DEP.\n\nRULE TEXT:\n"+ruleText.substring(0,90000);
+  var sys="You are a strict reference assistant for Maine 10-144 CMR Chapter 241 Subsurface Wastewater Disposal Rules. The full rule book PDF is attached - read ALL content including tables and figures. Answer ONLY from the rule book. Cite the exact section number with every answer. If not in the rule book, say: That is not addressed in Ch. 241 - consult a licensed designer or the Maine DEP.";
+  var messages=[];
+  for(var i=0;i<history.length;i++){
+    if(i%2===0){
+      var content=[{type:"text",text:history[i]}];
+      if(i===0){
+        content.unshift({type:"document",source:{type:"base64",media_type:"application/pdf",data:pdfB64},cache_control:{type:"ephemeral"}});
+      }
+      messages.push({role:"user",content:content});
+    }else{
+      messages.push({role:"assistant",content:history[i]});
+    }
+  }
   return fetch("https://ch241-proxy.tyler-interstateseptic.workers.dev",{
     method:"POST",
-    headers:{
-      "content-type":"application/json",
-      "x-api-key":apiKey,
-      "anthropic-version":"2023-06-01"
-    },
-    body:JSON.stringify({model:"claude-haiku-4-5-20251001",max_tokens:1024,system:sys,messages:history.slice(-10)})
+    headers:{"content-type":"application/json","x-api-key":apiKey,"anthropic-version":"2023-06-01","anthropic-beta":"pdfs-2024-09-25"},
+    body:JSON.stringify({model:"claude-haiku-4-5-20251001",max_tokens:1024,system:sys,messages:messages})
   }).then(function(r){
     if(!r.ok)return r.json().then(function(e){throw new Error(e.error&&e.error.message?e.error.message:"API error "+r.status);});
     return r.json();
@@ -155,11 +142,9 @@ function callApi(history){
 function addMsg(cls,text){
   var d=document.createElement("div");
   d.className="m "+cls;d.textContent=text;
-  msgs.appendChild(d);msgs.scrollTop=msgs.scrollHeight;
-  return d;
+  msgs.appendChild(d);msgs.scrollTop=msgs.scrollHeight;return d;
 }
-function showChat(){setup.style.display="none";chat.style.display="flex";addMsg("s","Rule book loaded. Ask anything about Ch. 241.");}
-function showSetup(){chat.style.display="none";setup.style.display="block";hist=[];msgs.innerHTML="";}
+function showChat(){setup.style.display="none";chat.style.display="flex";addMsg("s","Rule book loaded including all tables. Ask anything about Ch. 241.");}
 function showErr(m){err.textContent=m;err.style.display="block";sts.style.display="none";}
 function showOk(m){sts.textContent=m;sts.style.display="block";err.style.display="none";}
 function hideMsg(){err.style.display="none";sts.style.display="none";}
