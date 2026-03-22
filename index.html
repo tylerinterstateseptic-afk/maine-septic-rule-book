@@ -139,13 +139,12 @@ function send(){
 }
 function callApi(history){
   var sys="You are a strict reference assistant for Maine 10-144 CMR Chapter 241 Subsurface Wastewater Disposal Rules. Answer ONLY from the rule text provided. Cite the exact section number with every answer. If not in the text say: That is not addressed in Ch. 241 - consult a licensed designer or the Maine DEP.\n\nRULE TEXT:\n"+ruleText.substring(0,90000);
-  return fetch("https://api.anthropic.com/v1/messages",{
+  return fetch("https://ch241-proxy.tyler-interstateseptic.workers.dev",{
     method:"POST",
     headers:{
       "content-type":"application/json",
       "x-api-key":apiKey,
-      "anthropic-version":"2023-06-01",
-      "anthropic-dangerous-direct-browser-calls":"true"
+      "anthropic-version":"2023-06-01"
     },
     body:JSON.stringify({model:"claude-haiku-4-5-20251001",max_tokens:1024,system:sys,messages:history.slice(-10)})
   }).then(function(r){
