@@ -134,11 +134,11 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
       <h3>Share With Someone</h3>
       <p style="font-size:14px;color:#374151;margin-bottom:10px;">Give them this link or scan the QR code &mdash; they will still need their own API key (Step 1).</p>
       <div class="short-url-box">
-        <span class="url-text">tinyurl.com/tyler-septic-rules</span>
+        <span class="url-text">tinyurl.com/tylers-septic-rules</span>
         <button class="copy-url-btn" id="copyUrlBtn" onclick="copyUrl()">Copy Link</button>
       </div>
       <div class="qr-wrap">
-        <img src="https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=https://tinyurl.com/tyler-septic-rules" alt="QR Code" width="180" height="180">
+        <img src="https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=https://tinyurl.com/tylers-septic-rules" alt="QR Code" width="180" height="180">
         <p>Scan to open on any phone</p>
       </div>
     </div>
@@ -196,7 +196,7 @@ function copyKey() {
 function copyUrl() {
   var btn = document.getElementById('copyUrlBtn');
   if (navigator.clipboard) {
-    navigator.clipboard.writeText('https://tinyurl.com/tyler-septic-rules').then(function() {
+    navigator.clipboard.writeText('https://tinyurl.com/tylers-septic-rules').then(function() {
       btn.textContent = 'Copied!'; setTimeout(function(){ btn.textContent = 'Copy Link'; }, 2000);
     });
   }
@@ -317,13 +317,13 @@ function send() {
     thinking.textContent = 'Asking Claude...';
     var system = 'You are an expert on Maine 10-144 CMR Chapter 241 Subsurface Wastewater Disposal Rules. ' +
       'Answer ONLY from the rule book. Always cite section numbers. ' +
-      'Give specific numbers, distances, and requirements. Never tell the user to look it up themselves — lay it all out. ' +
+      'Give specific numbers, distances, and requirements. Never tell the user to look it up themselves - lay it all out. ' +
       'Full rule text:
 
 ' + fullText;
     var content = [{type:'text', text:'Question: ' + q + '
 
-Page images from Ch. 241 (pages ' + pageNums.join(', ') + ') are attached — selected as most relevant. Read all tables carefully and give a specific, detailed answer with actual numbers and distances.'}];
+Page images from Ch. 241 (pages ' + pageNums.join(', ') + ') are attached - selected as most relevant. Read all tables carefully and give a specific, detailed answer with actual numbers and distances.'}];
     images.forEach(function(img) {
       content.push({type:'text', text:'--- Page ' + img.num + ' ---'});
       content.push({type:'image', source:{type:'base64', media_type:'image/jpeg', data: img.data.split(',')[1]}});
