@@ -10,11 +10,9 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
 .header { background: #1a1a2e; color: white; padding: 16px 20px; display: flex; justify-content: space-between; align-items: center; }
 .header h1 { font-size: 18px; font-weight: 700; }
 .header p { font-size: 12px; color: #a0a8c0; margin-top: 2px; }
-.header-btns { display: flex; gap: 8px; }
-.btn { background: transparent; border: 1px solid rgba(255,255,255,0.3); color: white; padding: 8px 16px; border-radius: 8px; cursor: pointer; font-size: 14px; }
-.btn:hover { background: rgba(255,255,255,0.1); }
-.btn-primary { background: #4f46e5; border: none; color: white; padding: 10px 20px; border-radius: 10px; cursor: pointer; font-size: 14px; font-weight: 600; }
-.btn-primary:hover { background: #4338ca; }
+.hbtns { display: flex; gap: 8px; }
+.btn { background: transparent; border: 1px solid rgba(255,255,255,0.3); color: white; padding: 8px 14px; border-radius: 8px; cursor: pointer; font-size: 14px; white-space: nowrap; }
+.btn-primary { background: #4f46e5; border: none; color: white; padding: 10px 20px; border-radius: 10px; cursor: pointer; font-size: 14px; font-weight: 600; width: 100%; margin-top: 16px; }
 .messages { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 12px; }
 .msg { max-width: 85%; padding: 12px 16px; border-radius: 18px; font-size: 14px; line-height: 1.6; }
 .msg-system { background: #fef3c7; color: #92400e; align-self: center; text-align: center; border-radius: 10px; font-size: 13px; max-width: 95%; }
@@ -24,33 +22,42 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
 .input-area { padding: 16px 20px; background: white; border-top: 1px solid #e5e7eb; display: flex; gap: 10px; }
 .input-area input { flex: 1; padding: 12px 16px; border: 1px solid #d1d5db; border-radius: 24px; font-size: 15px; outline: none; }
 .input-area input:focus { border-color: #4f46e5; }
-.send-btn { background: #4f46e5; border: none; color: white; width: 44px; height: 44px; border-radius: 50%; cursor: pointer; font-size: 20px; display: flex; align-items: center; justify-content: center; }
-.modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 100; align-items: center; justify-content: center; padding: 16px; }
+.send-btn { background: #4f46e5; border: none; color: white; width: 44px; height: 44px; border-radius: 50%; cursor: pointer; font-size: 20px; flex-shrink: 0; }
+.modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 100; align-items: flex-start; justify-content: center; padding: 20px; overflow-y: auto; }
 .modal.open { display: flex; }
-.modal-box { background: white; border-radius: 16px; padding: 24px; width: 100%; max-width: 460px; max-height: 88vh; overflow-y: auto; }
-.modal-box h2 { font-size: 18px; margin-bottom: 16px; color: #1f2937; }
-.modal-box h3 { font-size: 15px; font-weight: 700; color: #1f2937; margin: 20px 0 8px; border-bottom: 2px solid #e5e7eb; padding-bottom: 6px; }
-.modal-box label { display: block; font-size: 13px; color: #6b7280; margin-bottom: 4px; margin-top: 12px; }
-.modal-box input[type=password], .modal-box input[type=text] { width: 100%; border: 1px solid #d1d5db; border-radius: 8px; padding: 10px 12px; font-size: 14px; }
-.modal-box ol, .modal-box ul { padding-left: 20px; font-size: 14px; color: #374151; line-height: 1.9; }
-.modal-box p { font-size: 14px; color: #374151; line-height: 1.6; margin: 6px 0; }
-.modal-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px; }
-.btn-cancel { background: #f3f4f6; border: none; color: #374151; padding: 10px 16px; border-radius: 8px; cursor: pointer; }
-#setupStatus { margin-top: 12px; font-size: 13px; color: #6b7280; min-height: 20px; }
-.url-box { background: #f3f4f6; border-radius: 8px; padding: 10px 12px; font-size: 12px; color: #1f2937; word-break: break-all; margin: 8px 0; font-family: monospace; }
-.qr-wrap { text-align: center; margin: 12px 0; }
-.qr-wrap img { border-radius: 8px; border: 4px solid #e5e7eb; }
-.platform-tag { display: inline-block; background: #dbeafe; color: #1e40af; font-size: 12px; font-weight: 700; padding: 2px 8px; border-radius: 6px; margin: 8px 0 4px; }
+.modal-box { background: white; border-radius: 16px; padding: 24px; width: 100%; max-width: 460px; margin: auto; }
+.modal-box h2 { font-size: 18px; font-weight: 700; color: #1f2937; margin-bottom: 4px; }
+.modal-box .sub { font-size: 13px; color: #6b7280; margin-bottom: 20px; }
+.field-label { font-size: 13px; font-weight: 600; color: #374151; margin-bottom: 6px; margin-top: 16px; display: block; }
+.field-row { display: flex; gap: 6px; align-items: center; }
+.field-row input { flex: 1; border: 1px solid #d1d5db; border-radius: 8px; padding: 10px 12px; font-size: 14px; outline: none; min-width: 0; }
+.field-row input:focus { border-color: #4f46e5; }
+.icon-btn { background: #f3f4f6; border: 1px solid #d1d5db; border-radius: 8px; padding: 10px 12px; cursor: pointer; font-size: 13px; color: #374151; white-space: nowrap; flex-shrink: 0; }
+.icon-btn:hover { background: #e5e7eb; }
+.setup-status { margin-top: 12px; font-size: 13px; color: #6b7280; min-height: 18px; }
+.modal-close { float: right; background: none; border: none; font-size: 22px; color: #9ca3af; cursor: pointer; line-height: 1; margin-top: -4px; }
+.help-section { margin-bottom: 20px; }
+.help-section h3 { font-size: 15px; font-weight: 700; color: #1f2937; margin-bottom: 10px; padding-bottom: 6px; border-bottom: 2px solid #f3f4f6; }
+.help-steps { list-style: none; padding: 0; }
+.help-steps li { display: flex; gap: 12px; margin-bottom: 10px; align-items: flex-start; }
+.step-num { background: #4f46e5; color: white; border-radius: 50%; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; flex-shrink: 0; margin-top: 1px; }
+.step-text { font-size: 14px; color: #374151; line-height: 1.5; }
+.step-text strong { color: #1f2937; }
+.step-text .url-box { background: #f3f4f6; border: 1px solid #e5e7eb; border-radius: 6px; padding: 6px 10px; font-size: 13px; font-family: monospace; color: #4f46e5; margin-top: 6px; display: block; word-break: break-all; }
+.copy-url-btn { background: #4f46e5; color: white; border: none; border-radius: 6px; padding: 6px 12px; font-size: 12px; cursor: pointer; margin-top: 6px; display: inline-block; }
+.qr-wrap { text-align: center; margin: 10px 0; }
+.qr-wrap img { border-radius: 8px; border: 1px solid #e5e7eb; }
+.tip-box { background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 8px; padding: 10px 14px; font-size: 13px; color: #1e40af; margin-top: 8px; line-height: 1.5; }
 </style>
 </head>
 <body>
 <div class="header">
   <div>
-    <h1>Maine Ch. 241 Rule Reference</h1>
+    <h1>Maine Ch. 241 Reference</h1>
     <p>Answers grounded strictly in the rule text</p>
   </div>
-  <div class="header-btns">
-    <button class="btn" onclick="openHelp()">?</button>
+  <div class="hbtns">
+    <button class="btn" onclick="openHelp()">? Help</button>
     <button class="btn" onclick="openSetup()">Setup</button>
   </div>
 </div>
@@ -59,126 +66,190 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
   <input type="text" id="q" placeholder="Ask a question about Ch. 241..." onkeydown="if(event.key==='Enter')send()">
   <button class="send-btn" onclick="send()">&#8593;</button>
 </div>
-<div class="modal" id="modal">
+
+<!-- SETUP MODAL -->
+<div class="modal" id="setupModal">
   <div class="modal-box">
+    <button class="modal-close" onclick="closeSetup()">&#x2715;</button>
     <h2>Setup</h2>
-    <label>Anthropic API Key</label>
-    <input type="password" id="keyInput" placeholder="sk-ant-...">
-    <label>PDF URL <span style="color:#9ca3af;font-size:11px">(pre-filled)</span></label>
-    <input type="text" id="urlInput">
-    <div class="modal-actions">
-      <button class="btn-cancel" onclick="closeSetup()">Cancel</button>
-      <button class="btn-primary" onclick="runSetup()">Load Rule Book</button>
+    <p class="sub">Enter your API key to get started. The rule book URL is pre-filled.</p>
+    <label class="field-label">Anthropic API Key</label>
+    <div class="field-row">
+      <input type="password" id="keyInput" placeholder="sk-ant-api03-...">
+      <button class="icon-btn" id="showBtn" onclick="toggleShow()">Show</button>
+      <button class="icon-btn" id="copyBtn" onclick="copyKey()">Copy</button>
     </div>
-    <div id="setupStatus"></div>
+    <label class="field-label">Rule Book PDF URL</label>
+    <div class="field-row">
+      <input type="text" id="urlInput" value="https://tylerinterstateseptic-afk.github.io/maine-septic-rule-book/ch241.pdf">
+    </div>
+    <p class="setup-status" id="setupStatus"></p>
+    <button class="btn-primary" onclick="runSetup()">Load Rule Book</button>
   </div>
 </div>
+
+<!-- HELP MODAL -->
 <div class="modal" id="helpModal">
   <div class="modal-box">
+    <button class="modal-close" onclick="closeHelp()">&#x2715;</button>
     <h2>Help &amp; Setup Guide</h2>
-    <h3>Getting an API Key</h3>
-    <ol>
-      <li>On a computer, go to <strong>console.anthropic.com</strong></li>
-      <li>Create a free account or log in</li>
-      <li>Click <strong>API Keys</strong> in the left menu</li>
-      <li>Click <strong>Create Key</strong>, give it any name</li>
-      <li>Copy the key &mdash; it starts with <code>sk-ant-</code></li>
-      <li>Open this app, tap <strong>Setup</strong>, paste the key</li>
-      <li>Tap <strong>Load Rule Book</strong> and wait ~1-2 min</li>
-    </ol>
-    <p style="margin-top:8px;color:#6b7280;font-size:13px">You only need to do this once. Everything is saved.</p>
-    <h3>Add to Phone Home Screen</h3>
-    <div class="platform-tag">Android &mdash; Chrome</div>
-    <ol>
-      <li>Open this app in Chrome</li>
-      <li>Tap the three-dot menu top right</li>
-      <li>Tap <strong>Add to Home screen</strong></li>
-      <li>Tap <strong>Add</strong></li>
-    </ol>
-    <div class="platform-tag">iPhone &mdash; Safari</div>
-    <ol>
-      <li>Open this app in Safari (not Chrome)</li>
-      <li>Tap the Share button at the bottom</li>
-      <li>Tap <strong>Add to Home Screen</strong></li>
-      <li>Tap <strong>Add</strong></li>
-    </ol>
-    <h3>Share With Someone</h3>
-    <p>Send them this link:</p>
-    <div class="url-box">https://tylerinterstateseptic-afk.github.io/maine-septic-rule-book/</div>
-    <p>Or scan the QR code:</p>
-    <div class="qr-wrap"><img src="https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=https://tylerinterstateseptic-afk.github.io/maine-septic-rule-book/" width="180" height="180" alt="QR code"></div>
-    <p style="font-size:12px;color:#6b7280;text-align:center">They will need their own API key to use the app.</p>
-    <div class="modal-actions"><button class="btn-primary" onclick="closeHelp()">Got it</button></div>
+    <p class="sub">Everything you need to get started and share the app</p>
+
+    <div class="help-section">
+      <h3>Step 1 &mdash; Get a Free API Key</h3>
+      <ul class="help-steps">
+        <li><span class="step-num">1</span><span class="step-text">On your phone or computer, open a browser and go to <strong>console.anthropic.com</strong></span></li>
+        <li><span class="step-num">2</span><span class="step-text">Create a free account or sign in</span></li>
+        <li><span class="step-num">3</span><span class="step-text">Tap <strong>API Keys</strong> in the left menu, then <strong>Create Key</strong></span></li>
+        <li><span class="step-num">4</span><span class="step-text">Give it any name (e.g. "Septic Rules"), then copy the key &mdash; it starts with <strong>sk-ant-</strong></span></li>
+        <li><span class="step-num">5</span><span class="step-text">You will need to add a small amount of credit ($5 minimum) under <strong>Billing</strong>. Each question costs fractions of a cent.</span></li>
+        <li><span class="step-num">6</span><span class="step-text">Come back here, tap <strong>Setup</strong>, paste your key, and tap <strong>Load Rule Book</strong>. It takes about 2 minutes to index all 140+ pages &mdash; only once.</span></li>
+      </ul>
+      <div class="tip-box">Your key is saved permanently on this device. Tap Setup &rarr; Show to view or copy it later as a backup.</div>
+    </div>
+
+    <div class="help-section">
+      <h3>Step 2 &mdash; Add to Your Phone Home Screen</h3>
+      <ul class="help-steps">
+        <li><span class="step-num">&#9679;</span><span class="step-text"><strong>Android (Chrome):</strong> Tap the three-dot menu &#8942; at the top right &rarr; tap <strong>Add to Home screen</strong> &rarr; tap <strong>Add</strong></span></li>
+        <li><span class="step-num">&#9679;</span><span class="step-text"><strong>iPhone (Safari):</strong> Tap the Share button (box with arrow pointing up) at the bottom &rarr; scroll down and tap <strong>Add to Home Screen</strong> &rarr; tap <strong>Add</strong></span></li>
+      </ul>
+      <div class="tip-box">Once added, it opens like an app. Your setup and API key stay saved &mdash; no need to redo anything.</div>
+    </div>
+
+    <div class="help-section">
+      <h3>Step 3 &mdash; Share With Someone</h3>
+      <p style="font-size:14px;color:#374151;margin-bottom:8px;">Send them this link or have them scan the QR code below:</p>
+      <span class="url-box" id="appUrl">https://tylerinterstateseptic-afk.github.io/maine-septic-rule-book/</span>
+      <button class="copy-url-btn" onclick="copyUrl()">Copy Link</button>
+      <div class="qr-wrap" style="margin-top:14px">
+        <img src="https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=https://tylerinterstateseptic-afk.github.io/maine-septic-rule-book/" alt="QR Code" width="180" height="180">
+        <p style="font-size:12px;color:#6b7280;margin-top:6px">Scan to open on any phone</p>
+      </div>
+      <div class="tip-box">They will need their own API key (Step 1). The rule book loads automatically after setup.</div>
+    </div>
   </div>
 </div>
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <script>
 pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
 var PROXY = 'https://ch241-proxy.tyler-interstateseptic.workers.dev';
-var PDF_DEFAULT = 'https://tylerinterstateseptic-afk.github.io/maine-septic-rule-book/ch241.pdf';
+
 function addMsg(text, cls) {
-  var d = document.createElement('div'); d.className = 'msg ' + cls; d.textContent = text;
-  document.getElementById('msgs').appendChild(d); d.scrollIntoView({behavior:'smooth'}); return d;
+  var d = document.createElement('div');
+  d.className = 'msg ' + cls;
+  d.textContent = text;
+  document.getElementById('msgs').appendChild(d);
+  d.scrollIntoView({behavior:'smooth'});
+  return d;
 }
+
 function openSetup() {
   document.getElementById('keyInput').value = localStorage.getItem('ch241k') || '';
-  document.getElementById('urlInput').value = localStorage.getItem('ch241u') || PDF_DEFAULT;
+  document.getElementById('keyInput').type = 'password';
+  document.getElementById('showBtn').textContent = 'Show';
   document.getElementById('setupStatus').textContent = '';
-  document.getElementById('modal').classList.add('open');
+  document.getElementById('setupModal').classList.add('open');
 }
-function closeSetup() { document.getElementById('modal').classList.remove('open'); }
+function closeSetup() { document.getElementById('setupModal').classList.remove('open'); }
 function openHelp() { document.getElementById('helpModal').classList.add('open'); }
 function closeHelp() { document.getElementById('helpModal').classList.remove('open'); }
+
+function toggleShow() {
+  var inp = document.getElementById('keyInput');
+  var btn = document.getElementById('showBtn');
+  if (inp.type === 'password') { inp.type = 'text'; btn.textContent = 'Hide'; }
+  else { inp.type = 'password'; btn.textContent = 'Show'; }
+}
+
+function copyKey() {
+  var val = document.getElementById('keyInput').value || localStorage.getItem('ch241k') || '';
+  if (!val) { document.getElementById('setupStatus').textContent = 'No key saved yet.'; return; }
+  document.getElementById('keyInput').value = val;
+  var btn = document.getElementById('copyBtn');
+  if (navigator.clipboard) {
+    navigator.clipboard.writeText(val).then(function() {
+      btn.textContent = 'Copied!';
+      setTimeout(function(){ btn.textContent = 'Copy'; }, 2000);
+    });
+  } else {
+    document.getElementById('keyInput').type = 'text';
+    document.getElementById('keyInput').select();
+    document.execCommand('copy');
+    btn.textContent = 'Copied!';
+    setTimeout(function(){ btn.textContent = 'Copy'; }, 2000);
+  }
+}
+
+function copyUrl() {
+  var url = 'https://tylerinterstateseptic-afk.github.io/maine-septic-rule-book/';
+  if (navigator.clipboard) {
+    navigator.clipboard.writeText(url).then(function() {
+      var btn = document.querySelector('.copy-url-btn');
+      btn.textContent = 'Copied!';
+      setTimeout(function(){ btn.textContent = 'Copy Link'; }, 2000);
+    });
+  }
+}
+
 function runSetup() {
   var key = document.getElementById('keyInput').value.trim();
-  var url = document.getElementById('urlInput').value.trim() || PDF_DEFAULT;
+  var url = document.getElementById('urlInput').value.trim();
   var status = document.getElementById('setupStatus');
-  if (!key || key.indexOf('sk-') !== 0) { status.textContent = 'Enter a valid API key (starts with sk-ant-).'; return; }
-  localStorage.setItem('ch241k', key); localStorage.setItem('ch241u', url); localStorage.removeItem('ch241imgs');
+  if (!key || key.indexOf('sk-') !== 0) { status.textContent = 'Please enter a valid API key (starts with sk-).'; return; }
+  if (!url) { status.textContent = 'PDF URL is required.'; return; }
+  localStorage.setItem('ch241k', key);
+  localStorage.setItem('ch241u', url);
+  localStorage.removeItem('ch241imgs');
   status.textContent = 'Fetching PDF...';
   fetch(url).then(function(r) { return r.arrayBuffer(); }).then(function(buf) {
-    status.textContent = 'Extracting text from all pages...';
+    status.textContent = 'Loading PDF...';
     return pdfjsLib.getDocument({data: buf}).promise.then(function(pdf) {
-      var total = pdf.numPages; var pageTexts = []; var chain = Promise.resolve();
+      var total = pdf.numPages;
+      var pageTexts = [];
+      var chain = Promise.resolve();
       for (var p = 1; p <= total; p++) {
         (function(pg) {
           chain = chain.then(function() {
             status.textContent = 'Reading page ' + pg + ' of ' + total + '...';
             return pdf.getPage(pg).then(function(page) {
               return page.getTextContent().then(function(tc) {
-                pageTexts.push(tc.items.map(function(i) { return i.str; }).join(' '));
+                pageTexts.push(tc.items.map(function(i){ return i.str; }).join(' '));
               });
             });
           });
         })(p);
       }
       return chain.then(function() {
-        var full = pageTexts.join('\n');
+        var full = pageTexts.join('
+');
         try { localStorage.setItem('ch241pages', JSON.stringify(pageTexts)); } catch(e) {}
         try { localStorage.setItem('ch241txt', full.substring(0, 120000)); } catch(e) {
-          try { localStorage.setItem('ch241txt', full.substring(0, 80000)); } catch(e2) {}
+          localStorage.setItem('ch241txt', full.substring(0, 80000));
         }
         status.textContent = 'Done! ' + total + ' pages indexed.';
-        setTimeout(function() {
-          closeSetup(); document.getElementById('msgs').innerHTML = '';
-          addMsg('Rule book loaded (' + total + ' pages indexed). Ask any question about Ch. 241.', 'msg-system');
-        }, 800);
+        closeSetup();
+        document.getElementById('msgs').innerHTML = '';
+        addMsg('Rule book loaded (' + total + ' pages indexed). Ask any question about Ch. 241.', 'msg-system');
       });
     });
   }).catch(function(e) { status.textContent = 'Error: ' + e.message; });
 }
+
 function findRelevantPages(question, pageTexts) {
   var q = question.toLowerCase();
-  var words = q.split(/\s+/).filter(function(w) { return w.length > 3; });
+  var words = q.split(/s+/).filter(function(w){ return w.length > 3; });
   var scores = pageTexts.map(function(pt, idx) {
-    var text = pt.toLowerCase(); var score = 0;
+    var text = pt.toLowerCase();
+    var score = 0;
     for (var j = 0; j < words.length; j++) {
-      var w = words[j]; var pos = -1;
-      while ((pos = text.indexOf(w, pos + 1)) >= 0) score++;
+      var pos = -1;
+      while ((pos = text.indexOf(words[j], pos + 1)) >= 0) score++;
     }
     return {idx: idx, score: score};
   });
-  scores.sort(function(a, b) { return b.score - a.score; });
+  scores.sort(function(a,b){ return b.score - a.score; });
   var selected = [];
   for (var i = 0; i < scores.length && selected.length < 15; i++) {
     if (scores[i].score > 0) selected.push(scores[i].idx);
@@ -189,71 +260,92 @@ function findRelevantPages(question, pageTexts) {
       if (selected.indexOf(k) < 0) selected.push(k);
     }
   }
-  selected.sort(function(a, b) { return a - b; }); return selected.slice(0, 16);
+  selected.sort(function(a,b){ return a-b; });
+  return selected.slice(0, 16);
 }
+
 function renderPage(pdfDoc, pageNum) {
   return pdfDoc.getPage(pageNum).then(function(page) {
-    var vp = page.getViewport({scale: 1.3}); var canvas = document.createElement('canvas');
+    var vp = page.getViewport({scale: 1.3});
+    var canvas = document.createElement('canvas');
     canvas.width = vp.width; canvas.height = vp.height;
     return page.render({canvasContext: canvas.getContext('2d'), viewport: vp}).promise.then(function() {
       return canvas.toDataURL('image/jpeg', 0.7);
     });
   });
 }
+
 function send() {
-  var q = document.getElementById('q').value.trim(); if (!q) return;
-  var key = localStorage.getItem('ch241k'); var pdfUrl = localStorage.getItem('ch241u') || PDF_DEFAULT;
-  var pagesJson = localStorage.getItem('ch241pages'); var fullText = localStorage.getItem('ch241txt') || '';
-  if (!key) { addMsg('Please tap Setup and enter your API key first.', 'msg-error'); return; }
-  if (!pagesJson) { addMsg('Please run Setup to index the rule book first.', 'msg-error'); return; }
-  document.getElementById('q').value = ''; addMsg(q, 'msg-user');
+  var q = document.getElementById('q').value.trim();
+  if (!q) return;
+  var key = localStorage.getItem('ch241k');
+  var pdfUrl = localStorage.getItem('ch241u');
+  var pagesJson = localStorage.getItem('ch241pages');
+  var fullText = localStorage.getItem('ch241txt') || '';
+  if (!key) { addMsg('Please tap Setup first to enter your API key.', 'msg-error'); return; }
+  if (!pdfUrl || !pagesJson) { addMsg('Please run Setup to load the rule book.', 'msg-error'); return; }
+  document.getElementById('q').value = '';
+  addMsg(q, 'msg-user');
   var thinking = addMsg('Finding relevant pages...', 'msg-system');
   var pageTexts;
-  try { pageTexts = JSON.parse(pagesJson); } catch(e) { thinking.remove(); addMsg('Corrupted data. Re-run Setup.', 'msg-error'); return; }
+  try { pageTexts = JSON.parse(pagesJson); } catch(e) {
+    thinking.remove(); addMsg('Data error. Please re-run Setup.', 'msg-error'); return;
+  }
   var indices = findRelevantPages(q, pageTexts);
-  var pageNums = indices.map(function(i) { return i + 1; });
-  thinking.textContent = 'Rendering pages: ' + pageNums.join(', ') + '...';
-  fetch(pdfUrl).then(function(r) { return r.arrayBuffer(); }).then(function(buf) {
+  var pageNums = indices.map(function(i){ return i + 1; });
+  thinking.textContent = 'Rendering pages ' + pageNums.join(', ') + '...';
+  fetch(pdfUrl).then(function(r){ return r.arrayBuffer(); }).then(function(buf) {
     return pdfjsLib.getDocument({data: buf}).promise.then(function(pdfDoc) {
-      var images = []; var chain = Promise.resolve();
+      var images = [];
+      var chain = Promise.resolve();
       pageNums.forEach(function(pn) {
         chain = chain.then(function() {
           thinking.textContent = 'Rendering page ' + pn + '...';
-          return renderPage(pdfDoc, pn).then(function(dataUrl) { images.push({num: pn, data: dataUrl}); });
+          return renderPage(pdfDoc, pn).then(function(dataUrl) {
+            images.push({num: pn, data: dataUrl});
+          });
         });
       });
-      return chain.then(function() { return images; });
+      return chain.then(function(){ return images; });
     });
   }).then(function(images) {
     thinking.textContent = 'Asking Claude...';
-    var system = 'You are an expert on Maine 10-144 CMR Chapter 241 Subsurface Wastewater Disposal Rules. Answer ONLY from the rule book. Always cite section numbers. Give specific numbers, distances, and requirements. Never tell the user to look it up — extract and present the actual information.\n\nFull rule text:\n\n' + fullText;
-    var content = [{type:'text', text:'Question: ' + q + '\n\nRelevant pages from Ch. 241 (pages ' + pageNums.join(', ') + '). Read all tables carefully and give a specific, detailed answer with actual numbers and distances.'}];
+    var system = 'You are an expert on Maine 10-144 CMR Chapter 241 Subsurface Wastewater Disposal Rules. ' +
+      'Answer ONLY from the rule book. Always cite section numbers. ' +
+      'Give specific numbers, distances, and requirements. Never tell the user to look it up themselves — lay it all out. ' +
+      'Full rule text:
+
+' + fullText;
+    var content = [{type:'text', text:'Question: ' + q + '
+
+Page images from Ch. 241 (pages ' + pageNums.join(', ') + ') are attached — selected as most relevant. Read all tables carefully and give a specific, detailed answer with actual numbers and distances.'}];
     images.forEach(function(img) {
       content.push({type:'text', text:'--- Page ' + img.num + ' ---'});
       content.push({type:'image', source:{type:'base64', media_type:'image/jpeg', data: img.data.split(',')[1]}});
     });
     return fetch(PROXY, {
       method: 'POST',
-      headers: {'Content-Type':'application/json', 'x-api-key': key, 'anthropic-version':'2023-06-01'},
-      body: JSON.stringify({model:'claude-haiku-4-5-20251001', max_tokens:2048, system: system, messages:[{role:'user', content: content}]})
-    }).then(function(r) { return r.json(); }).then(function(data) {
+      headers: {'Content-Type':'application/json','x-api-key':key,'anthropic-version':'2023-06-01'},
+      body: JSON.stringify({model:'claude-haiku-4-5-20251001', max_tokens:2048, system:system, messages:[{role:'user',content:content}]})
+    }).then(function(r){ return r.json(); }).then(function(data) {
       thinking.remove();
-      if (data.error) { addMsg('API Error: ' + data.error.message, 'msg-error'); }
-      else if (data.content && data.content[0]) { addMsg(data.content[0].text, 'msg-ai'); }
-      else { addMsg('Unexpected response.', 'msg-error'); }
+      if (data.error) addMsg('API Error: ' + data.error.message, 'msg-error');
+      else if (data.content && data.content[0]) addMsg(data.content[0].text, 'msg-ai');
+      else addMsg('Unexpected response.', 'msg-error');
     });
   }).catch(function(e) { thinking.remove(); addMsg('Error: ' + e.message, 'msg-error'); });
 }
+
 (function init() {
-  var key = localStorage.getItem('ch241k'); var pages = localStorage.getItem('ch241pages');
+  var key = localStorage.getItem('ch241k');
+  var pages = localStorage.getItem('ch241pages');
   if (!key || !pages) {
-    addMsg('Welcome! Tap Setup to enter your API key and load the rule book. Tap ? for help.', 'msg-system');
-    openSetup();
+    addMsg('Welcome! Tap "? Help" for setup instructions, or tap "Setup" if you already have an API key.', 'msg-system');
   } else {
     try {
       var pt = JSON.parse(pages);
       addMsg('Rule book loaded (' + pt.length + ' pages indexed). Ask any question about Ch. 241.', 'msg-system');
-    } catch(e) { addMsg('Error loading data. Please re-run Setup.', 'msg-system'); openSetup(); }
+    } catch(e) { addMsg('Error reading stored data. Please re-run Setup.', 'msg-system'); openSetup(); }
   }
 })();
 </script>
